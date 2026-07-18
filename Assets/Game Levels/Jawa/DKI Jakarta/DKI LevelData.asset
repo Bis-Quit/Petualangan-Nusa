@@ -18,3 +18,5 @@ MonoBehaviour:
   - {fileID: 3420389812088139521, guid: c1b20bcffbb39401da43288eed44d7cf, type: 3}
   decoyPrefabs:
   - {fileID: 1575722058774657514, guid: 3ffa34380dd0c43e8ac9bf73271b7ce6, type: 3}
+  secretItemPrefabs:
+  - {fileID: 1575722058774657514, guid: aee4f0b049a284453a85fe9fa36b4677, type: 3}

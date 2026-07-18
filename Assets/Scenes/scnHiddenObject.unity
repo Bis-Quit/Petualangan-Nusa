@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 27593566}
   - component: {fileID: 27593565}
   m_Layer: 5
-  m_Name: Image
+  m_Name: SecretItemPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1680,6 +1680,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
+      propertyPath: coinTextUI
+      value: 
+      objectReference: {fileID: 1073233906}
+    - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
       propertyPath: backgroundImage
       value: 
       objectReference: {fileID: 721436413}
@@ -1687,6 +1691,10 @@ PrefabInstance:
       propertyPath: bottomPanelContainer
       value: 
       objectReference: {fileID: 436004067}
+    - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
+      propertyPath: secretPanelContainer
+      value: 
+      objectReference: {fileID: 27593564}
     - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
       propertyPath: silhouetteSlotPrefab
       value: 

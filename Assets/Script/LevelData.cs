@@ -12,4 +12,7 @@ public class LevelData : ScriptableObject
 
     [Header("Decoy Items")]
     public List<GameObject> decoyPrefabs;
+
+    [Header("Secret Items")]
+    public List<GameObject> secretItemPrefabs;
 }

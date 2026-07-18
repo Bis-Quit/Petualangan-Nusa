@@ -5,7 +5,9 @@ using System.Collections;
 [RequireComponent(typeof(Button))]
 public class DecoyItem : MonoBehaviour
 {
+    [HideInInspector] public HiddenObjectManager gameManager;
     private bool isShaking = false;
+    private bool hasYieldCoin = false;
 
     void Start()
     {
@@ -14,6 +16,15 @@ public class DecoyItem : MonoBehaviour
 
     public void OnDecoyClicked()
     {
+        if (!hasYieldCoin)
+        {
+            if (gameManager != null)
+            {
+                gameManager.AddCoins(1);
+                hasYieldCoin = true;
+            }
+        }
+
         if (!isShaking)
         {
             StartCoroutine(ShakeAnimation());

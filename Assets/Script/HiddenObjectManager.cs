@@ -19,13 +19,19 @@ public class HiddenObjectManager : MonoBehaviour
     public Transform secretPanelContainer; 
 
     [Header("UI Koin")]
-    public TextMeshProUGUI coinTextUI; 
+    public TextMeshProUGUI coinTextUI;
+
+    [Header("UI Timer")]
+    public TextMeshProUGUI timerTextUI;
 
     private Dictionary<string, Image> silhouetteDictionary = new Dictionary<string, Image>();
 
     private int totalItemsToFind;
     private int itemsFoundCounter = 0;
     private int currentCoins = 0; 
+
+    private float currentTime;
+    private bool isTimerRunning = false;
 
     void Start()
     {
@@ -40,6 +46,10 @@ public class HiddenObjectManager : MonoBehaviour
 
         totalItemsToFind = currentLevelData.itemPrefabs.Count;
         itemsFoundCounter = 0; 
+
+        currentTime = currentLevelData.timeLimit;
+        isTimerRunning = true;
+        UpdateTimerUI();
 
         // SEBAR BARANG UTAMA
         foreach (GameObject itemPrefab in currentLevelData.itemPrefabs)
@@ -96,6 +106,38 @@ public class HiddenObjectManager : MonoBehaviour
 
             availablePoints.RemoveAt(randomIndex);
         }
+    }
+
+    // --- LOGIKA WAKTU ---
+    void Update()
+    {
+        if (isTimerRunning)
+        {
+            currentTime -= Time.deltaTime;
+
+            if (currentTime <= 0)
+            {
+                currentTime = 0;
+                isTimerRunning = false;
+                GameOver();
+            }
+            UpdateTimerUI();
+        }
+    }
+
+    private void UpdateTimerUI()
+    {
+        if (timerTextUI != null)
+        {
+            int minutes = Mathf.FloorToInt(currentTime / 60);
+            int seconds = Mathf.FloorToInt(currentTime % 60);
+            timerTextUI.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
+    }
+
+    private void GameOver()
+    {
+        Debug.Log("Waktu Habis! GAME OVER!");
     }
 
     // --- MESIN KASIR KOIN ---

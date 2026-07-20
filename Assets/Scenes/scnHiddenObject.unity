@@ -1711,6 +1711,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1073233906}
     - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
+      propertyPath: timerTextUI
+      value: 
+      objectReference: {fileID: 925205381}
+    - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
       propertyPath: backgroundImage
       value: 
       objectReference: {fileID: 721436413}

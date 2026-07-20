@@ -7,6 +7,9 @@ public class LevelData : ScriptableObject
     public string levelName;
     public Sprite backgroundSprite;
 
+    [Header("Time Setting")]
+    public float timeLimit = 60f;
+
     [Header("Main Items")]
     public List<GameObject> itemPrefabs;
 

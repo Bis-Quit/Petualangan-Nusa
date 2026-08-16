@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System.Collections;
 
 public class MapNode : MonoBehaviour
 {
@@ -23,6 +24,12 @@ public class MapNode : MonoBehaviour
     public Color unlockedColor = Color.white; // White
     public Color completedColor = Color.green; // Green
 
+    [Header("Animasi Pin")]
+    public bool useFloatingAnimation = true;
+    public float floatSpeed = 3f;
+    public float floatAmount = 10f;
+    private Vector3 pinStartPos;
+
     [Header("Click Event")]
     public UnityEvent onNodeActiveClicked;
 
@@ -30,6 +37,16 @@ public class MapNode : MonoBehaviour
     {
         LoadNodeState();
         UpdateNodeVisuals();
+
+        if (pinObject != null)
+        {
+            pinStartPos = pinObject.transform.localPosition;
+            
+            if (useFloatingAnimation && currentState != NodeState.Locked)
+            {
+                StartCoroutine(FloatingAnimation());
+            }
+        }
     }
 
     public void UpdateNodeVisuals()
@@ -84,6 +101,12 @@ public class MapNode : MonoBehaviour
             currentState = NodeState.Unlocked;
             SaveNodeState(1); // 1 represents Unlocked state
             UpdateNodeVisuals();
+            
+            // Nyalain animasi kalau baru di-unlock
+            if (useFloatingAnimation && pinObject != null)
+            {
+                StartCoroutine(FloatingAnimation());
+            }
         }
     }
 
@@ -98,5 +121,15 @@ public class MapNode : MonoBehaviour
         int defaultState = (currentState == NodeState.Unlocked) ? 1 : 0;
         int saveState = PlayerPrefs.GetInt(nodeID, defaultState);
         currentState = (NodeState) saveState;
+    }
+
+    private IEnumerator FloatingAnimation()
+    {
+        while (currentState != NodeState.Locked)
+        {
+            float newY = pinStartPos.y + Mathf.Sin(Time.time * floatSpeed) * floatAmount;
+            pinObject.transform.localPosition = new Vector3(pinStartPos.x, newY, pinStartPos.z);
+            yield return null;
+        }
     }
 }

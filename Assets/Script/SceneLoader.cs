@@ -9,6 +9,11 @@ public class SceneLoader : MonoBehaviour
     [SerializeField] private string mapScene = "";
     [SerializeField] private string storyScene = "";
 
+    public void LoadSceneByName(string sceneName)
+    {
+        SceneManager.LoadSceneAsync(sceneName);
+    }
+    
     public void Onclick_mainMenu()
     {
         SceneManager.LoadSceneAsync(mainMenuScene);

@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: 9034b88a149c0497ba204db1a3447803
+guid: fe5353776c39549c7bb51a1f1564c5e0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1252010713696973699
-    second: Group-2_0
+      213: 3164671270955646770
+    second: awan_0
   - first:
-      213: 4630361617661009954
-    second: Group-2_1
+      213: -586099003647309044
+    second: awan_1
   - first:
-      213: 7553056569949320869
-    second: Group-2_2
+      213: -4650302478570182324
+    second: awan_2
   - first:
-      213: -9087548191043143225
-    second: Group-2_3
+      213: 152931847120586875
+    second: awan_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -33,7 +33,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -57,7 +57,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -135,13 +135,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Group-2_0
+      name: awan_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 48
-        width: 34
-        height: 33
+        y: 875
+        width: 821
+        height: 205
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,20 +150,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 38334e45c19006110800000000000000
-      internalID: 1252010713696973699
+      spriteID: 23ff138f0cb2beb20800000000000000
+      internalID: 3164671270955646770
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Group-2_1
+      name: awan_1
       rect:
         serializedVersion: 2
-        x: 30
-        y: 42
-        width: 90
-        height: 44
+        x: 1135
+        y: 893
+        width: 785
+        height: 187
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -172,42 +172,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 220a94acb59524040800000000000000
-      internalID: 4630361617661009954
+      spriteID: c0b446cbf02cdd7f0800000000000000
+      internalID: -586099003647309044
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Group-2_2
+      name: awan_2
       rect:
         serializedVersion: 2
-        x: 138
-        y: 46
-        width: 120
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5a6724cbee8d1d860800000000000000
-      internalID: 7553056569949320869
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Group-2_3
-      rect:
-        serializedVersion: 2
-        x: 111
+        x: 0
         y: 0
-        width: 72
-        height: 42
+        width: 847
+        height: 180
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -216,8 +194,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7c931a1711b82e180800000000000000
-      internalID: -9087548191043143225
+      spriteID: c49a4bab88ec67fb0800000000000000
+      internalID: -4650302478570182324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: awan_3
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 0
+        width: 729
+        height: 157
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b78877664b25f1200800000000000000
+      internalID: 152931847120586875
       vertices: []
       indices: 
       edges: []
@@ -236,10 +236,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Group-2_0: 1252010713696973699
-      Group-2_1: 4630361617661009954
-      Group-2_2: 7553056569949320869
-      Group-2_3: -9087548191043143225
+      awan_0: 3164671270955646770
+      awan_1: -586099003647309044
+      awan_2: -4650302478570182324
+      awan_3: 152931847120586875
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

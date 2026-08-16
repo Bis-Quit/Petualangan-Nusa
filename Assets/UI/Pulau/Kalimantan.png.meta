@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: bba651214cde541b28aa49ab20f7417c
+guid: 89743e2932a0a4abcb3dc0725921cd02
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5523106281433241152
-    second: Group-4_0
+      213: 9221002857335688616
+    second: Kalimantan_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -24,7 +24,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Group-4_0
+      name: Kalimantan_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 232
-        height: 271
+        width: 458
+        height: 426
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0469e8976e306ac40800000000000000
-      internalID: 5523106281433241152
+      spriteID: 8ad0b586e3597ff70800000000000000
+      internalID: 9221002857335688616
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Group-4_0: 5523106281433241152
+      Kalimantan_0: 9221002857335688616
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

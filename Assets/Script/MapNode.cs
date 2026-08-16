@@ -9,26 +9,29 @@ public class MapNode : MonoBehaviour
 
     [Header("Status Node")]
     public NodeState currentState = NodeState.Locked;
-    public string nodeID; // Unique identifier for the node
+    public string nodeID;
 
     [Header("Navigation Settings")]
-    public MapNode nextNode;// Reference to the next node in the sequence
+    public MapNode nextNode;
 
-    [Header("UI Elements")]
+    [Header("UI Pulau (Warna)")]
     public Button nodeButton;
     public Image nodeImage;
-    public GameObject pinObject;
+    public Color lockedColor = new Color(0.5f, 0.5f, 0.5f);
+    public Color unlockedColor = Color.white;
+    public Color completedColor = Color.white;
 
-    [Header("Color Settings")]
-    public Color lockedColor = new Color(0.5f, 0.5f, 0.5f); // Gray
-    public Color unlockedColor = Color.white; // White
-    public Color completedColor = Color.green; // Green
+    [Header("Visual Pin (Sistem 3 Fase)")]
+    public GameObject lockedPinObj;
+    public GameObject activePinObj;
+    public GameObject completedPinObj;
 
-    [Header("Animasi Pin")]
+    [Header("Animasi Pin Aktif")]
     public bool useFloatingAnimation = true;
     public float floatSpeed = 3f;
     public float floatAmount = 10f;
-    private Vector3 pinStartPos;
+    private Vector3 activePinStartPos;
+    private Coroutine floatCoroutine;
 
     [Header("Click Event")]
     public UnityEvent onNodeActiveClicked;
@@ -36,39 +39,49 @@ public class MapNode : MonoBehaviour
     void Start()
     {
         LoadNodeState();
-        UpdateNodeVisuals();
-
-        if (pinObject != null)
+        
+        // Simpan posisi awal pin aktif untuk dianimasikan
+        if (activePinObj != null)
         {
-            pinStartPos = pinObject.transform.localPosition;
-            
-            if (useFloatingAnimation && currentState != NodeState.Locked)
-            {
-                StartCoroutine(FloatingAnimation());
-            }
+            activePinStartPos = activePinObj.transform.localPosition;
         }
+
+        UpdateNodeVisuals();
     }
 
     public void UpdateNodeVisuals()
     {
+        // 1. Matikan semua pin terlebih dahulu
+        if (lockedPinObj != null) lockedPinObj.SetActive(false);
+        if (activePinObj != null) activePinObj.SetActive(false);
+        if (completedPinObj != null) completedPinObj.SetActive(false);
+        
+        // 2. Hentikan animasi sebelumnya
+        if (floatCoroutine != null) StopCoroutine(floatCoroutine);
+
+        // 3. Nyalakan pin sesuai status
         switch (currentState)
         {
             case NodeState.Locked:
-                nodeButton.interactable = false;
-                nodeImage.color = lockedColor;
-                if (pinObject != null) pinObject.SetActive(false);
+                if (nodeButton != null) nodeButton.interactable = false;
+                if (nodeImage != null) nodeImage.color = lockedColor;
+                if (lockedPinObj != null) lockedPinObj.SetActive(true);
                 break;
             
             case NodeState.Unlocked:
-                nodeButton.interactable = true;
-                nodeImage.color = unlockedColor;
-                if (pinObject != null) pinObject.SetActive(true);
+                if (nodeButton != null) nodeButton.interactable = true;
+                if (nodeImage != null) nodeImage.color = unlockedColor;
+                if (activePinObj != null) 
+                {
+                    activePinObj.SetActive(true);
+                    if (useFloatingAnimation) floatCoroutine = StartCoroutine(FloatingAnimation());
+                }
                 break;
 
             case NodeState.Completed:
-                nodeButton.interactable = true;
-                nodeImage.color = completedColor;
-                if (pinObject != null) pinObject.SetActive(true);
+                if (nodeButton != null) nodeButton.interactable = true;
+                if (nodeImage != null) nodeImage.color = completedColor; 
+                if (completedPinObj != null) completedPinObj.SetActive(true);
                 break;
         }
     }
@@ -85,7 +98,7 @@ public class MapNode : MonoBehaviour
     public void CompleteThisNode()
     {
         currentState = NodeState.Completed;
-        SaveNodeState(2); // 2 represents Completed state
+        SaveNodeState(2);
         UpdateNodeVisuals();
 
         if (nextNode != null)
@@ -99,14 +112,8 @@ public class MapNode : MonoBehaviour
         if (currentState == NodeState.Locked)
         {
             currentState = NodeState.Unlocked;
-            SaveNodeState(1); // 1 represents Unlocked state
+            SaveNodeState(1);
             UpdateNodeVisuals();
-            
-            // Nyalain animasi kalau baru di-unlock
-            if (useFloatingAnimation && pinObject != null)
-            {
-                StartCoroutine(FloatingAnimation());
-            }
         }
     }
 
@@ -125,10 +132,10 @@ public class MapNode : MonoBehaviour
 
     private IEnumerator FloatingAnimation()
     {
-        while (currentState != NodeState.Locked)
+        while (true) // Terus mengambang selama objeknya nyala
         {
-            float newY = pinStartPos.y + Mathf.Sin(Time.time * floatSpeed) * floatAmount;
-            pinObject.transform.localPosition = new Vector3(pinStartPos.x, newY, pinStartPos.z);
+            float newY = activePinStartPos.y + Mathf.Sin(Time.time * floatSpeed) * floatAmount;
+            activePinObj.transform.localPosition = new Vector3(activePinStartPos.x, newY, activePinStartPos.z);
             yield return null;
         }
     }

@@ -19,19 +19,26 @@ public class MapNode : MonoBehaviour
     public Image nodeImage;
     public Color lockedColor = new Color(0.5f, 0.5f, 0.5f);
     public Color unlockedColor = Color.white;
-    public Color completedColor = Color.white;
+    public Color completedColor = Color.white; // Udah diganti ke putih (warna asli)
 
     [Header("Visual Pin (Sistem 3 Fase)")]
-    public GameObject lockedPinObj;
-    public GameObject activePinObj;
-    public GameObject completedPinObj;
+    public GameObject lockedPinObj;      
+    public GameObject activePinObj;      
+    public GameObject completedPinObj;   
 
-    [Header("Animasi Pin Aktif")]
+    [Header("Animasi Pin Aktif (Ngambang)")]
     public bool useFloatingAnimation = true;
     public float floatSpeed = 3f;
     public float floatAmount = 10f;
     private Vector3 activePinStartPos;
     private Coroutine floatCoroutine;
+
+    [Header("Animasi Pin Selesai (Denyut)")]
+    public bool useCompletedAnimation = true;
+    public float pulseSpeed = 2f;
+    public float pulseAmount = 0.05f; // Seberapa besar memuainya
+    private Vector3 completedPinStartScale;
+    private Coroutine completedCoroutine;
 
     [Header("Click Event")]
     public UnityEvent onNodeActiveClicked;
@@ -40,10 +47,16 @@ public class MapNode : MonoBehaviour
     {
         LoadNodeState();
         
-        // Simpan posisi awal pin aktif untuk dianimasikan
+        // Simpan posisi awal pin aktif buat dianimasikan
         if (activePinObj != null)
         {
             activePinStartPos = activePinObj.transform.localPosition;
+        }
+
+        // Simpan ukuran awal pin koper buat dianimasikan
+        if (completedPinObj != null)
+        {
+            completedPinStartScale = completedPinObj.transform.localScale;
         }
 
         UpdateNodeVisuals();
@@ -51,15 +64,15 @@ public class MapNode : MonoBehaviour
 
     public void UpdateNodeVisuals()
     {
-        // 1. Matikan semua pin terlebih dahulu
+        // 1. Matikan semua pin & hentikan semua animasi biar bersih
         if (lockedPinObj != null) lockedPinObj.SetActive(false);
         if (activePinObj != null) activePinObj.SetActive(false);
         if (completedPinObj != null) completedPinObj.SetActive(false);
         
-        // 2. Hentikan animasi sebelumnya
         if (floatCoroutine != null) StopCoroutine(floatCoroutine);
+        if (completedCoroutine != null) StopCoroutine(completedCoroutine);
 
-        // 3. Nyalakan pin sesuai status
+        // 2. Nyalakan pin & animasi sesuai status
         switch (currentState)
         {
             case NodeState.Locked:
@@ -80,8 +93,14 @@ public class MapNode : MonoBehaviour
 
             case NodeState.Completed:
                 if (nodeButton != null) nodeButton.interactable = true;
-                if (nodeImage != null) nodeImage.color = completedColor; 
-                if (completedPinObj != null) completedPinObj.SetActive(true);
+                // Paksa warna jadi putih asli biarpun di Inspector lu lupa ganti
+                if (nodeImage != null) nodeImage.color = Color.white; 
+                
+                if (completedPinObj != null) 
+                {
+                    completedPinObj.SetActive(true);
+                    if (useCompletedAnimation) completedCoroutine = StartCoroutine(CompletedAnimation());
+                }
                 break;
         }
     }
@@ -125,17 +144,28 @@ public class MapNode : MonoBehaviour
 
     private void LoadNodeState()
     {
-        int defaultState = (currentState == NodeState.Unlocked) ? 1 : 0;
+        int defaultState = (int)currentState; 
         int saveState = PlayerPrefs.GetInt(nodeID, defaultState);
         currentState = (NodeState) saveState;
     }
 
     private IEnumerator FloatingAnimation()
     {
-        while (true) // Terus mengambang selama objeknya nyala
+        while (true) 
         {
             float newY = activePinStartPos.y + Mathf.Sin(Time.time * floatSpeed) * floatAmount;
             activePinObj.transform.localPosition = new Vector3(activePinStartPos.x, newY, activePinStartPos.z);
+            yield return null;
+        }
+    }
+
+    private IEnumerator CompletedAnimation()
+    {
+        while (true)
+        {
+            // Efek membesar dan mengecil secara halus
+            float scaleMultiplier = 1f + Mathf.Sin(Time.time * pulseSpeed) * pulseAmount;
+            completedPinObj.transform.localScale = completedPinStartScale * scaleMultiplier;
             yield return null;
         }
     }

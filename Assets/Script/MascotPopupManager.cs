@@ -1,7 +1,16 @@
 using UnityEngine;
-using UnityEngine.UI; // Wajib ditambah biar bisa akses komponen Image
+using UnityEngine.UI;
 using TMPro; 
 using UnityEngine.SceneManagement;
+using System.Collections;
+
+[System.Serializable]
+public struct MascotSkinAnim
+{
+    public Sprite frameIdle;  // Tangan di bawah
+    public Sprite frameWave1; // Tangan setengah naik
+    public Sprite frameWave2; // Tangan full di atas
+}
 
 public class MascotPopupManager : MonoBehaviour
 {
@@ -10,17 +19,17 @@ public class MascotPopupManager : MonoBehaviour
     [Header("UI Elements")]
     public GameObject popupPanel;
     public TextMeshProUGUI chatText;
-    
-    // --- TAMBAHAN BARU: Referensi Gambar ---
-    public Image popupMascotImage; // Wadah gambar maskot di UI Popup
+    public Image popupMascotImage;
 
-    [Header("Data Skin Maskot")]
-    public Sprite[] mascotSkins; // Daftar semua gambar wajah/baju maskot
+    [Header("Data Skin Maskot (Animasi)")]
+    public MascotSkinAnim[] mascotSkins; 
     
-    // Kunci buat nyimpen data baju di memori (harus sama persis dengan sistem toko/gallery lu nanti)
+    [Header("Pengaturan Animasi")]
+    public float animSpeed = 0.15f;
+
     private string prefsSkinKey = "SelectedSkinIndex"; 
-
     private string sceneToLoad;
+    private Coroutine waveCoroutine;
 
     private void Awake()
     {
@@ -35,28 +44,55 @@ public class MascotPopupManager : MonoBehaviour
     public void ShowMascotPopup(string namaPulau, string namaScene)
     {
         sceneToLoad = namaScene;
-        
         chatText.text = "Halo kawan! Ayo bantu aku mencari barang pusaka di pulau " + namaPulau + "!";
         
-        // --- TAMBAHAN BARU: Ganti baju maskot sebelum popup muncul ---
-        UpdateMascotSkin();
+        UpdateAndAnimateMascot();
 
         popupPanel.SetActive(true);
     }
 
-    private void UpdateMascotSkin()
+    private void UpdateAndAnimateMascot()
     {
-        // Cegah error kalau kolom gambar lupa diisi di Inspector
         if (mascotSkins == null || mascotSkins.Length == 0 || popupMascotImage == null) return;
 
-        // Ambil data skin terakhir yang dipilih pemain (kalau pemain baru, otomatis dikasih angka 0 / default)
         int currentSkinIndex = PlayerPrefs.GetInt(prefsSkinKey, 0);
 
-        // Pastikan angkanya valid biar ga error out of bounds
         if (currentSkinIndex >= 0 && currentSkinIndex < mascotSkins.Length)
         {
-            popupMascotImage.sprite = mascotSkins[currentSkinIndex];
+            if (waveCoroutine != null) StopCoroutine(waveCoroutine);
+            
+            waveCoroutine = StartCoroutine(WaveRoutine(mascotSkins[currentSkinIndex]));
         }
+    }
+
+    // --- ANIMASI MELAMBAI ---
+    private IEnumerator WaveRoutine(MascotSkinAnim skin)
+    {
+        popupMascotImage.sprite = skin.frameIdle;
+        yield return new WaitForSeconds(0.2f);
+
+        popupMascotImage.sprite = skin.frameWave1;
+        yield return new WaitForSeconds(0.08f);
+
+        popupMascotImage.sprite = skin.frameWave2;
+        yield return new WaitForSeconds(0.12f);
+
+        popupMascotImage.sprite = skin.frameWave1;
+        yield return new WaitForSeconds(0.08f);
+
+        popupMascotImage.sprite = skin.frameWave2;
+        yield return new WaitForSeconds(0.12f);
+
+        popupMascotImage.sprite = skin.frameWave1;
+        yield return new WaitForSeconds(0.08f);
+
+        popupMascotImage.sprite = skin.frameWave2;
+        yield return new WaitForSeconds(0.12f);
+
+        popupMascotImage.sprite = skin.frameWave1;
+        yield return new WaitForSeconds(0.08f);
+
+        popupMascotImage.sprite = skin.frameIdle;
     }
 
     public void OnClickPlay()
@@ -69,6 +105,7 @@ public class MascotPopupManager : MonoBehaviour
 
     public void OnClickClose()
     {
+        if (waveCoroutine != null) StopCoroutine(waveCoroutine);
         popupPanel.SetActive(false);
     }
 }

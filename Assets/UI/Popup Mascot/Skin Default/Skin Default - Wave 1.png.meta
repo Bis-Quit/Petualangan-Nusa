@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1a683263382994113a8635b8a8221c78
+guid: ced564f706095450b8051f5affa1106d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5623194428626525839
-    second: test_0
+      213: -1955016016103079419
+    second: Skin Default - Wave 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +49,7 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 0
-  alignment: 0
+  alignment: 7
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: test_0
+      name: Skin Default - Wave 1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1920
-        height: 1080
+        x: 98
+        y: 207
+        width: 394
+        height: 469
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 171a2cac57666f1b0800000000000000
-      internalID: -5623194428626525839
+      spriteID: 5020afd9a436ed4e0800000000000000
+      internalID: -1955016016103079419
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      test_0: -5623194428626525839
+      Skin Default - Wave 1_0: -1955016016103079419
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

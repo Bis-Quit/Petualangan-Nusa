@@ -1719,6 +1719,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 721436413}
     - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
+      propertyPath: secretSlotPrefab
+      value: 
+      objectReference: {fileID: 8302087013647956072, guid: b530353fc0cc04d69b761f17ba7ce7f9, type: 3}
+    - target: {fileID: 6750758999449966307, guid: d46d522bcd9a94a028bda6e3c6bd7884, type: 3}
       propertyPath: bottomPanelContainer
       value: 
       objectReference: {fileID: 436004067}

@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb9ef9af483b5412d97b3de363e9b865, type: 3}
   m_Name: Kalimantan LevelData
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
-  levelName: 
-  backgroundSprite: {fileID: 0}
+  levelName: Kalimantan
+  backgroundSprite: {fileID: 21300000, guid: ae8ecdc90e5f442f6b59b1ced5dce3f8, type: 3}
+  timeLimit: 60
   itemPrefabs: []
   decoyPrefabs: []
+  secretItemPrefabs: []

@@ -147,5 +147,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5919ba3f979004ce1b312724fb130543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HiddenItem
-  itemID: 
+  itemID: item4
   gameManager: {fileID: 0}

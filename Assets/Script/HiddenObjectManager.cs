@@ -14,6 +14,7 @@ public class HiddenObjectManager : MonoBehaviour
     [Header("Setup UI Siluet (Bottom)")]
     public Transform bottomPanelContainer;
     public GameObject silhouetteSlotPrefab;
+    public GameObject secretSlotPrefab;
     
     [Header("Setup UI Secret (Right)")]
     public Transform secretPanelContainer; 
@@ -167,13 +168,44 @@ public class HiddenObjectManager : MonoBehaviour
     // --- LOGIKA SECRET ITEM DITEMUKAN ---
     public void SecretItemFound(Sprite secretSprite, int reward)
     {
-        GameObject secretUIObj = Instantiate(silhouetteSlotPrefab, secretPanelContainer);
+        GameObject secretUIObj = Instantiate(secretSlotPrefab, secretPanelContainer);
         Image secretImg = secretUIObj.GetComponent<Image>();
         secretImg.sprite = secretSprite;
         secretImg.color = Color.white;
 
         AddCoins(reward); 
         StartCoroutine(PopAnimation(secretImg.transform)); 
+        
+        // Cari objek cahaya dan jalankan efek mengkilap
+        Transform shineObj = secretUIObj.transform.Find("Shine");
+        if (shineObj != null) 
+        {
+            StartCoroutine(ShineSweepRoutine(shineObj.GetComponent<RectTransform>())); 
+        }
+    }
+
+    // --- MESIN ANIMASI MENGKILAP ---
+    private IEnumerator ShineSweepRoutine(RectTransform shineRect)
+    {
+        while(true)
+        {
+            // 1. Taruh cahaya di luar kiri siluet
+            shineRect.anchoredPosition = new Vector2(-100f, 0);
+            
+            // 2. Jeda diam (misal 2.5 detik sekali kilap)
+            yield return new WaitForSeconds(2.5f);
+            
+            // 3. Cahaya meluncur ke kanan dengan cepat
+            float time = 0;
+            float duration = 0.6f; // Kecepatan kilap
+            while(time < duration)
+            {
+                time += Time.deltaTime;
+                float currentX = Mathf.Lerp(-100f, 100f, time / duration);
+                shineRect.anchoredPosition = new Vector2(currentX, 0);
+                yield return null;
+            }
+        }
     }
 
     // --- KONDISI MENANG ---

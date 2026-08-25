@@ -7,6 +7,7 @@ using TMPro;
 public class HiddenObjectManager : MonoBehaviour
 {
     [Header("Data Level")]
+    public static LevelData ActiveLevelData;
     public LevelData currentLevelData;
     public Image backgroundImage;
     public List<Transform> spawnPoints;
@@ -36,6 +37,18 @@ public class HiddenObjectManager : MonoBehaviour
 
     void Start()
     {
+        // Validasi dan assign data dari map jika tersedia
+        if (ActiveLevelData != null)
+        {
+            currentLevelData = ActiveLevelData; 
+        }
+
+        if (currentLevelData == null)
+        {
+            Debug.LogError("ERROR: Level Data kosong! Silakan mainkan dari scene Map, atau isi slot 'Current Level Data' di Inspector untuk testing.");
+            return; // Hentikan proses agar tidak error beruntun
+        }
+
         UpdateCoinUI();
         LoadLevel();
     }

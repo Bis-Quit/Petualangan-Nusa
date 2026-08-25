@@ -42,4 +42,15 @@ public class SceneLoader : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
         #endif
     }
+
+    /// <summary>
+    /// Memuat scene gameplay dan menyuntikkan data level yang dipilih.
+    /// </summary>
+    /// <param name="selectedLevelData">Scriptable Object dari level yang dituju</param>
+    public void LoadGameplayWithLevel(LevelData selectedLevelData)
+    {
+        HiddenObjectManager.ActiveLevelData = selectedLevelData;
+        
+        SceneManager.LoadSceneAsync(gameplayScene);
+    }
 }

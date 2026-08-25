@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/scnMap.unity
     guid: ed3e51818555d48e684692ddf4f470aa
+  - enabled: 1
+    path: Assets/Scenes/scnHiddenObject.unity
+    guid: 5df927886340c4bd589c24260aa53b62
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

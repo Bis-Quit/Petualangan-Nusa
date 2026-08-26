@@ -3737,7 +3737,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c8fb82148da4c9a80a84856e97743b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapNode
-  currentState: 0
+  currentState: 1
   nodeID: Pulau_Kalimantan
   levelData: {fileID: 11400000, guid: 09a45d64fcec94efe8050a2c6c83f4bb, type: 2}
   nextNode: {fileID: 1357424708}

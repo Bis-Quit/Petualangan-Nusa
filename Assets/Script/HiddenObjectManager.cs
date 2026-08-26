@@ -26,6 +26,16 @@ public class HiddenObjectManager : MonoBehaviour
     [Header("UI Timer")]
     public TextMeshProUGUI timerTextUI;
 
+    [Header("Setup UI Pop-up Secret")]
+    public GameObject secretPopupPanel;
+    public Image popupItemImage;
+    public TextMeshProUGUI popupNameText;
+    public TextMeshProUGUI popupDescText;
+    
+    // Variabel penahan data sementara sebelum diklaim
+    private Sprite pendingSprite;
+    private int pendingReward;
+
     private Dictionary<string, Image> silhouetteDictionary = new Dictionary<string, Image>();
 
     private int totalItemsToFind;
@@ -247,6 +257,34 @@ public class HiddenObjectManager : MonoBehaviour
         {
             StartCoroutine(ShineSweepRoutine(shineObj.GetComponent<RectTransform>())); 
         }
+    }
+
+    // --- LOGIKA MUNCULIN POPUP ---
+    public void ShowSecretPopup(Sprite img, string name, string desc, int reward)
+    {
+        isTimerRunning = false; // Waktu berhenti (Pause)
+        
+        pendingSprite = img;
+        pendingReward = reward;
+
+        // Setel teks dan gambar UI
+        if(popupItemImage != null) popupItemImage.sprite = img;
+        if(popupNameText != null) popupNameText.text = name;
+        if(popupDescText != null) popupDescText.text = desc;
+        
+        // Munculkan Panel Popup di layar
+        if(secretPopupPanel != null) secretPopupPanel.SetActive(true);
+    }
+
+    // --- LOGIKA TOMBOL AMBIL DIKLIK ---
+    public void ClaimSecretItem()
+    {
+        // Tutup Panel Popup
+        if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
+        
+        isTimerRunning = true;
+
+        SecretItemFound(pendingSprite, pendingReward); 
     }
 
     // --- MESIN ANIMASI MENGKILAP ---

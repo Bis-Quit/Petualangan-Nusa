@@ -4,7 +4,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class SecretItem : MonoBehaviour
 {
-    [Header("Secret Item Coin Reward " )]
+    [Header("Data Item Rahasia")]
+    public string secretName;
+    [TextArea] public string secretDescription;
     public int coinReward = 0;
 
     [HideInInspector] public HiddenObjectManager gameManager;
@@ -20,8 +22,9 @@ public class SecretItem : MonoBehaviour
         if (!isCollected && gameManager != null)
         {
             isCollected = true;
-
-            gameManager.SecretItemFound(GetComponent<Image>().sprite, coinReward);
+            
+            gameManager.ShowSecretPopup(GetComponent<Image>().sprite, secretName, secretDescription, coinReward);
+            
             gameObject.SetActive(false);
         }
     }

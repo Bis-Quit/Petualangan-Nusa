@@ -7,9 +7,9 @@ using System.Collections;
 [System.Serializable]
 public struct MascotSkinAnim
 {
-    public Sprite frameIdle;  // Tangan di bawah
-    public Sprite frameWave1; // Tangan setengah naik
-    public Sprite frameWave2; // Tangan full di atas
+    public Sprite frameIdle;  
+    public Sprite frameWave1; 
+    public Sprite frameWave2; 
 }
 
 public class MascotPopupManager : MonoBehaviour
@@ -27,8 +27,11 @@ public class MascotPopupManager : MonoBehaviour
     [Header("Pengaturan Animasi")]
     public float animSpeed = 0.15f;
 
+    [Header("Scene Settings")]
+    public string gameplayScene = "scnHiddenObject";
+
     private string prefsSkinKey = "SelectedSkinIndex"; 
-    private string sceneToLoad;
+    private LevelData pendingLevelData; // Menampung SO titipan
     private Coroutine waveCoroutine;
 
     private void Awake()
@@ -41,10 +44,13 @@ public class MascotPopupManager : MonoBehaviour
         if (popupPanel != null) popupPanel.SetActive(false);
     }
 
-    public void ShowMascotPopup(string namaPulau, string namaScene)
+    // --- UBAH PARAMETER JADI LEVEL DATA ---
+    public void ShowMascotPopup(LevelData selectedLevel)
     {
-        sceneToLoad = namaScene;
-        chatText.text = "Halo kawan! Ayo bantu aku mencari barang pusaka di pulau " + namaPulau + "!";
+        pendingLevelData = selectedLevel;
+        
+        // Ambil nama pulau otomatis dari SO
+        chatText.text = "Halo kawan! Ayo bantu aku mencari barang pusaka di pulau " + pendingLevelData.levelName + "!";
         
         UpdateAndAnimateMascot();
 
@@ -65,41 +71,35 @@ public class MascotPopupManager : MonoBehaviour
         }
     }
 
-    // --- ANIMASI MELAMBAI ---
     private IEnumerator WaveRoutine(MascotSkinAnim skin)
     {
         popupMascotImage.sprite = skin.frameIdle;
         yield return new WaitForSeconds(0.2f);
-
         popupMascotImage.sprite = skin.frameWave1;
         yield return new WaitForSeconds(0.08f);
-
         popupMascotImage.sprite = skin.frameWave2;
         yield return new WaitForSeconds(0.12f);
-
         popupMascotImage.sprite = skin.frameWave1;
         yield return new WaitForSeconds(0.08f);
-
         popupMascotImage.sprite = skin.frameWave2;
         yield return new WaitForSeconds(0.12f);
-
         popupMascotImage.sprite = skin.frameWave1;
         yield return new WaitForSeconds(0.08f);
-
         popupMascotImage.sprite = skin.frameWave2;
         yield return new WaitForSeconds(0.12f);
-
         popupMascotImage.sprite = skin.frameWave1;
         yield return new WaitForSeconds(0.08f);
-
         popupMascotImage.sprite = skin.frameIdle;
     }
 
+    // --- EKSEKUSI PINDAH SCENE ---
     public void OnClickPlay()
     {
-        if (!string.IsNullOrEmpty(sceneToLoad))
+        if (pendingLevelData != null)
         {
-            SceneManager.LoadScene(sceneToLoad);
+            HiddenObjectManager.ActiveLevelData = pendingLevelData;
+            
+            SceneManager.LoadSceneAsync(gameplayScene);
         }
     }
 

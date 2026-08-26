@@ -11,9 +11,9 @@ public class MapNode : MonoBehaviour
     public NodeState currentState = NodeState.Locked;
     public string nodeID;
 
-    [Header("Setup Destinasi Popup")]
-    public string namaPulau; 
-    public string namaSceneTujuan; 
+    // --- UBAH STRING JADI SO LEVEL DATA ---
+    [Header("Data Level")]
+    public LevelData levelData; 
 
     [Header("Navigation Settings")]
     public MapNode nextNode;
@@ -111,9 +111,14 @@ public class MapNode : MonoBehaviour
             Debug.Log("Node clicked: " + nodeID);
             onNodeActiveClicked?.Invoke();
 
-            if (MascotPopupManager.Instance != null && !string.IsNullOrEmpty(namaSceneTujuan))
+            // --- KIRIM SO KE MASCOT POPUP ---
+            if (MascotPopupManager.Instance != null && levelData != null)
             {
-                MascotPopupManager.Instance.ShowMascotPopup(namaPulau, namaSceneTujuan);
+                MascotPopupManager.Instance.ShowMascotPopup(levelData);
+            }
+            else if (levelData == null)
+            {
+                Debug.LogError("BRO! LevelData di MapNode " + gameObject.name + " belum diisi!");
             }
         }
     }

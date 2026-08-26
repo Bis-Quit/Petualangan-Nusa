@@ -11,6 +11,10 @@ public class MapNode : MonoBehaviour
     public NodeState currentState = NodeState.Locked;
     public string nodeID;
 
+    [Header("Setup Destinasi Popup")]
+    public string namaPulau; 
+    public string namaSceneTujuan; 
+
     [Header("Navigation Settings")]
     public MapNode nextNode;
 
@@ -19,7 +23,7 @@ public class MapNode : MonoBehaviour
     public Image nodeImage;
     public Color lockedColor = new Color(0.5f, 0.5f, 0.5f);
     public Color unlockedColor = Color.white;
-    public Color completedColor = Color.white; // Udah diganti ke putih (warna asli)
+    public Color completedColor = Color.white;
 
     [Header("Visual Pin (Sistem 3 Fase)")]
     public GameObject lockedPinObj;      
@@ -36,7 +40,7 @@ public class MapNode : MonoBehaviour
     [Header("Animasi Pin Selesai (Denyut)")]
     public bool useCompletedAnimation = true;
     public float pulseSpeed = 2f;
-    public float pulseAmount = 0.05f; // Seberapa besar memuainya
+    public float pulseAmount = 0.05f;
     private Vector3 completedPinStartScale;
     private Coroutine completedCoroutine;
 
@@ -47,13 +51,11 @@ public class MapNode : MonoBehaviour
     {
         LoadNodeState();
         
-        // Simpan posisi awal pin aktif buat dianimasikan
         if (activePinObj != null)
         {
             activePinStartPos = activePinObj.transform.localPosition;
         }
 
-        // Simpan ukuran awal pin koper buat dianimasikan
         if (completedPinObj != null)
         {
             completedPinStartScale = completedPinObj.transform.localScale;
@@ -64,7 +66,6 @@ public class MapNode : MonoBehaviour
 
     public void UpdateNodeVisuals()
     {
-        // 1. Matikan semua pin & hentikan semua animasi biar bersih
         if (lockedPinObj != null) lockedPinObj.SetActive(false);
         if (activePinObj != null) activePinObj.SetActive(false);
         if (completedPinObj != null) completedPinObj.SetActive(false);
@@ -72,7 +73,6 @@ public class MapNode : MonoBehaviour
         if (floatCoroutine != null) StopCoroutine(floatCoroutine);
         if (completedCoroutine != null) StopCoroutine(completedCoroutine);
 
-        // 2. Nyalakan pin & animasi sesuai status
         switch (currentState)
         {
             case NodeState.Locked:
@@ -93,7 +93,6 @@ public class MapNode : MonoBehaviour
 
             case NodeState.Completed:
                 if (nodeButton != null) nodeButton.interactable = true;
-                // Paksa warna jadi putih asli biarpun di Inspector lu lupa ganti
                 if (nodeImage != null) nodeImage.color = Color.white; 
                 
                 if (completedPinObj != null) 
@@ -111,6 +110,11 @@ public class MapNode : MonoBehaviour
         {
             Debug.Log("Node clicked: " + nodeID);
             onNodeActiveClicked?.Invoke();
+
+            if (MascotPopupManager.Instance != null && !string.IsNullOrEmpty(namaSceneTujuan))
+            {
+                MascotPopupManager.Instance.ShowMascotPopup(namaPulau, namaSceneTujuan);
+            }
         }
     }
 
@@ -163,7 +167,6 @@ public class MapNode : MonoBehaviour
     {
         while (true)
         {
-            // Efek membesar dan mengecil secara halus
             float scaleMultiplier = 1f + Mathf.Sin(Time.time * pulseSpeed) * pulseAmount;
             completedPinObj.transform.localScale = completedPinStartScale * scaleMultiplier;
             yield return null;

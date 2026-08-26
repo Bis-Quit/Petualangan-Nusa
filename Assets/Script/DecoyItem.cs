@@ -16,9 +16,11 @@ public class DecoyItem : MonoBehaviour
 
     public void OnDecoyClicked()
     {
-        if (!hasYieldCoin)
+        if (gameManager != null)
         {
-            if (gameManager != null)
+            gameManager.RegisterMissedClick();
+
+            if (!hasYieldCoin)
             {
                 gameManager.AddCoins(1);
                 hasYieldCoin = true;

@@ -35,6 +35,11 @@ public class HiddenObjectManager : MonoBehaviour
     private float currentTime;
     private bool isTimerRunning = false;
 
+    [Header("Pengaturan Penalti")]
+    public float penaltyTime = 3f; // Waktu yang dikurangi (detik)
+    public int maxMissedClicks = 3; // Batas salah klik sebelum dihukum
+    private int currentMissedClicks = 0;
+
     void Start()
     {
         // Validasi dan assign data dari map jika tersedia
@@ -159,6 +164,53 @@ public class HiddenObjectManager : MonoBehaviour
     {
         currentCoins += amount;
         UpdateCoinUI();
+    }
+
+    // --- MESIN PENALTI SPAM CLICK ---
+    public void RegisterMissedClick()
+    {
+        if (!isTimerRunning) return;
+
+        currentMissedClicks++;
+        
+        if (currentMissedClicks >= maxMissedClicks)
+        {
+            ApplyPenalty();
+            currentMissedClicks = 0; // Reset hitungan setelah kena hukum
+        }
+    }
+
+    private void ApplyPenalty()
+    {
+        currentTime -= penaltyTime;
+        if (currentTime < 0) currentTime = 0; // Biar waktu ga minus
+        
+        UpdateTimerUI();
+        StartCoroutine(TimerWarningAnim());
+    }
+
+    private IEnumerator TimerWarningAnim()
+    {
+        // Ubah warna teks jadi merah sejenak sebagai feedback visual
+        if (timerTextUI != null)
+        {
+            Color originalColor = timerTextUI.color;
+            timerTextUI.color = Color.red;
+            
+            // Goyangkan teks sedikit (opsional, biar kerasa juice-nya)
+            RectTransform timerRect = timerTextUI.GetComponent<RectTransform>();
+            Vector3 originalPos = timerRect.anchoredPosition;
+            timerRect.anchoredPosition = originalPos + new Vector3(Random.Range(-5f, 5f), 0, 0);
+            
+            yield return new WaitForSeconds(0.15f);
+            
+            timerRect.anchoredPosition = originalPos - new Vector3(Random.Range(-5f, 5f), 0, 0);
+            
+            yield return new WaitForSeconds(0.15f);
+            
+            timerRect.anchoredPosition = originalPos;
+            timerTextUI.color = originalColor;
+        }
     }
 
     private void UpdateCoinUI()

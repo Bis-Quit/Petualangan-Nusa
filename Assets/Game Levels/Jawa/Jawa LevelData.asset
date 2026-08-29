@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Jawa LevelData
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelName: Jawa
-  backgroundSprite: {fileID: 21300000, guid: 1f17490791efe40c190632097134f51b, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: 663dbdd4f7f11445f92cc69d315dab04, type: 3}
   timeLimit: 60
   itemPrefabs:
   - {fileID: 3420389812088139521, guid: 40e882c4dd9774d7fb653b135579ad45, type: 3}

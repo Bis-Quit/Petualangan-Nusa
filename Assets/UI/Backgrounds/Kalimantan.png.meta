@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ae8ecdc90e5f442f6b59b1ced5dce3f8
+guid: 8d6f14af1a85a46dc949819d56069e8e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9221002857335688616
-    second: Kalimantan_0
+      213: -8954704823480238361
+    second: Kalimantan 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Kalimantan_0
+      name: Kalimantan 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8ad0b586e3597ff70800000000000000
-      internalID: 9221002857335688616
+      spriteID: 7eebbf7386f7ab380800000000000000
+      internalID: -8954704823480238361
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Kalimantan_0: 9221002857335688616
+      Kalimantan 1_0: -8954704823480238361
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

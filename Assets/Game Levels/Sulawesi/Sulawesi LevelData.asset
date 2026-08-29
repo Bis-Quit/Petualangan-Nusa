@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sulawesi LevelData
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelName: Sulawesi
-  backgroundSprite: {fileID: 21300000, guid: 80eb60c67954b4dd5aee17409dfac8d3, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: d60ce5dec174246f39ec9f953db8f960, type: 3}
   timeLimit: 60
   itemPrefabs: []
   decoyPrefabs: []

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Papua LevelData
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelName: Papua
-  backgroundSprite: {fileID: 21300000, guid: aedebd9b0a6da456d8b51d2eea1781da, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: 96a3297dd709a4fcf978d5934e52e8b2, type: 3}
   timeLimit: 60
   itemPrefabs: []
   decoyPrefabs: []

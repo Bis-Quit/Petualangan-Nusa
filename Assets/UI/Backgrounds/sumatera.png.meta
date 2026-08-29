@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5475e3fa89f6a4055a9ce92614b396e6
+guid: 5e188bbf9083b4cbeac955f310266ee0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9208053169316993568
-    second: sumatera_0
+      213: -9203732973397819490
+    second: sumatera 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sumatera_0
+      name: sumatera 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0e563f9cd6c663080800000000000000
-      internalID: -9208053169316993568
+      spriteID: e9fb219cf95c54080800000000000000
+      internalID: -9203732973397819490
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sumatera_0: -9208053169316993568
+      sumatera 1_0: -9203732973397819490
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

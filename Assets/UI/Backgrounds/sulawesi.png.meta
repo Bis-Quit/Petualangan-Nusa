@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 80eb60c67954b4dd5aee17409dfac8d3
+guid: d60ce5dec174246f39ec9f953db8f960
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -403411298114824778
-    second: sulawesi_0
+      213: 1917369815033125070
+    second: sulawesi 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sulawesi_0
+      name: sulawesi 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6b59c7dcf8bc66af0800000000000000
-      internalID: -403411298114824778
+      spriteID: ec81b1820bddb9a10800000000000000
+      internalID: 1917369815033125070
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sulawesi_0: -403411298114824778
+      sulawesi 1_0: 1917369815033125070
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Kalimantan LevelData
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelName: Kalimantan
-  backgroundSprite: {fileID: 21300000, guid: 8d6f14af1a85a46dc949819d56069e8e, type: 3}
+  environmentPrefab: {fileID: 415080263995291938, guid: 5c3f5dc11c270405eb853ead52597292, type: 3}
   timeLimit: 60
   itemPrefabs: []
   decoyPrefabs: []

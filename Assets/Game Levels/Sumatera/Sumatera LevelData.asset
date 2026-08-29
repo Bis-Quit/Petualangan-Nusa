@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sumatera LevelData
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelName: Sumatera
-  backgroundSprite: {fileID: 21300000, guid: 5e188bbf9083b4cbeac955f310266ee0, type: 3}
+  environmentPrefab: {fileID: 7421260856614312545, guid: d6b5bcb998c1f4046bc15ced2504b108, type: 3}
   timeLimit: 60
   itemPrefabs: []
   decoyPrefabs: []

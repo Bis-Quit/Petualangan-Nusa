@@ -9,8 +9,9 @@ public class HiddenObjectManager : MonoBehaviour
     [Header("Data Level")]
     public static LevelData ActiveLevelData;
     public LevelData currentLevelData;
-    public Image backgroundImage;
-    public List<Transform> spawnPoints;
+    
+    [Header("Environment Setup")]
+    public Transform environmentContainer;
 
     [Header("Setup UI Siluet (Bottom)")]
     public Transform bottomPanelContainer;
@@ -20,10 +21,8 @@ public class HiddenObjectManager : MonoBehaviour
     [Header("Setup UI Secret (Right)")]
     public Transform secretPanelContainer; 
 
-    [Header("UI Koin")]
+    [Header("UI Koin & Timer")]
     public TextMeshProUGUI coinTextUI;
-
-    [Header("UI Timer")]
     public TextMeshProUGUI timerTextUI;
 
     [Header("Setup UI Pop-up Secret")]
@@ -32,7 +31,6 @@ public class HiddenObjectManager : MonoBehaviour
     public TextMeshProUGUI popupNameText;
     public TextMeshProUGUI popupDescText;
     
-    // Variabel penahan data sementara sebelum diklaim
     private Sprite pendingSprite;
     private int pendingReward;
 
@@ -41,28 +39,25 @@ public class HiddenObjectManager : MonoBehaviour
     private int totalItemsToFind;
     private int itemsFoundCounter = 0;
     private int currentCoins = 0; 
-
     private float currentTime;
     private bool isTimerRunning = false;
 
     [Header("Pengaturan Penalti")]
-    public float penaltyTime = 3f; // Waktu yang dikurangi (detik)
-    public int maxMissedClicks = 3; // Batas salah klik sebelum dihukum
+    public float penaltyTime = 3f; 
+    public int maxMissedClicks = 3; 
     private int currentMissedClicks = 0;
 
     void Start()
     {
-        // Validasi dan assign data dari map jika tersedia
-        if (ActiveLevelData != null)
+        if (ActiveLevelData != null) currentLevelData = ActiveLevelData; 
+
+        if (currentLevelData == null || currentLevelData.environmentPrefab == null)
         {
-            currentLevelData = ActiveLevelData; 
+            Debug.LogError("ERROR: Level Data atau Environment Prefab kosong!");
+            return; 
         }
 
-        if (currentLevelData == null)
-        {
-            Debug.LogError("ERROR: Level Data kosong! Silakan mainkan dari scene Map, atau isi slot 'Current Level Data' di Inspector untuk testing.");
-            return; // Hentikan proses agar tidak error beruntun
-        }
+        if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
 
         UpdateCoinUI();
         LoadLevel();
@@ -70,8 +65,22 @@ public class HiddenObjectManager : MonoBehaviour
 
     void LoadLevel()
     {
-        backgroundImage.sprite = currentLevelData.backgroundSprite;
-        List<Transform> availablePoints = new List<Transform>(spawnPoints);
+        // --- LOGIKA SPAWN ENVIRONMENT ---
+        // Munculkan Prefab ke layar
+        GameObject spawnedEnv = Instantiate(currentLevelData.environmentPrefab, environmentContainer);
+        
+        // Kumpulkan titik koordinat otomatis dari dalam Prefab
+        Transform spawnPointsParent = spawnedEnv.transform.Find("SpawnPointHolder");
+        List<Transform> availablePoints = new List<Transform>();
+        
+        if (spawnPointsParent != null)
+        {
+            foreach (Transform child in spawnPointsParent) availablePoints.Add(child);
+        }
+        else
+        {
+            Debug.LogError("Objek 'SpawnPointHolder' tidak ditemukan di dalam Prefab Level!");
+        }
 
         totalItemsToFind = currentLevelData.itemPrefabs.Count;
         itemsFoundCounter = 0; 
@@ -94,7 +103,6 @@ public class HiddenObjectManager : MonoBehaviour
 
             availablePoints.RemoveAt(randomIndex);
 
-            // Cetak UI Siluet ke panel bawah
             GameObject newSilhouette = Instantiate(silhouetteSlotPrefab, bottomPanelContainer);
             Image silhouetteImage = newSilhouette.GetComponent<Image>();
             silhouetteImage.sprite = itemPrefab.GetComponent<Image>().sprite;
@@ -176,6 +184,11 @@ public class HiddenObjectManager : MonoBehaviour
         UpdateCoinUI();
     }
 
+    private void UpdateCoinUI()
+    {
+        if (coinTextUI != null) coinTextUI.text = currentCoins.ToString();
+    }
+
     // --- MESIN PENALTI SPAM CLICK ---
     public void RegisterMissedClick()
     {
@@ -186,14 +199,14 @@ public class HiddenObjectManager : MonoBehaviour
         if (currentMissedClicks >= maxMissedClicks)
         {
             ApplyPenalty();
-            currentMissedClicks = 0; // Reset hitungan setelah kena hukum
+            currentMissedClicks = 0; 
         }
     }
 
     private void ApplyPenalty()
     {
         currentTime -= penaltyTime;
-        if (currentTime < 0) currentTime = 0; // Biar waktu ga minus
+        if (currentTime < 0) currentTime = 0; 
         
         UpdateTimerUI();
         StartCoroutine(TimerWarningAnim());
@@ -201,31 +214,22 @@ public class HiddenObjectManager : MonoBehaviour
 
     private IEnumerator TimerWarningAnim()
     {
-        // Ubah warna teks jadi merah sejenak sebagai feedback visual
         if (timerTextUI != null)
         {
             Color originalColor = timerTextUI.color;
             timerTextUI.color = Color.red;
             
-            // Goyangkan teks sedikit (opsional, biar kerasa juice-nya)
             RectTransform timerRect = timerTextUI.GetComponent<RectTransform>();
             Vector3 originalPos = timerRect.anchoredPosition;
             timerRect.anchoredPosition = originalPos + new Vector3(Random.Range(-5f, 5f), 0, 0);
             
             yield return new WaitForSeconds(0.15f);
-            
             timerRect.anchoredPosition = originalPos - new Vector3(Random.Range(-5f, 5f), 0, 0);
-            
             yield return new WaitForSeconds(0.15f);
             
             timerRect.anchoredPosition = originalPos;
             timerTextUI.color = originalColor;
         }
-    }
-
-    private void UpdateCoinUI()
-    {
-        if (coinTextUI != null) coinTextUI.text = currentCoins.ToString();
     }
 
     // --- LOGIKA BARANG UTAMA DITEMUKAN ---
@@ -240,6 +244,30 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
+    // --- LOGIKA MUNCULIN POPUP ---
+    public void ShowSecretPopup(Sprite img, string name, string desc, int reward)
+    {
+        isTimerRunning = false; 
+        
+        pendingSprite = img;
+        pendingReward = reward;
+
+        if(popupItemImage != null) popupItemImage.sprite = img;
+        if(popupNameText != null) popupNameText.text = name;
+        if(popupDescText != null) popupDescText.text = desc;
+        
+        if(secretPopupPanel != null) secretPopupPanel.SetActive(true);
+    }
+
+    // --- LOGIKA TOMBOL AMBIL DIKLIK ---
+    public void ClaimSecretItem()
+    {
+        if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
+        
+        isTimerRunning = true;
+        SecretItemFound(pendingSprite, pendingReward); 
+    }
+
     // --- LOGIKA SECRET ITEM DITEMUKAN ---
     public void SecretItemFound(Sprite secretSprite, int reward)
     {
@@ -251,7 +279,6 @@ public class HiddenObjectManager : MonoBehaviour
         AddCoins(reward); 
         StartCoroutine(PopAnimation(secretImg.transform)); 
         
-        // Cari objek cahaya dan jalankan efek mengkilap
         Transform shineObj = secretUIObj.transform.Find("Shine");
         if (shineObj != null) 
         {
@@ -259,48 +286,16 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- LOGIKA MUNCULIN POPUP ---
-    public void ShowSecretPopup(Sprite img, string name, string desc, int reward)
-    {
-        isTimerRunning = false; // Waktu berhenti (Pause)
-        
-        pendingSprite = img;
-        pendingReward = reward;
-
-        // Setel teks dan gambar UI
-        if(popupItemImage != null) popupItemImage.sprite = img;
-        if(popupNameText != null) popupNameText.text = name;
-        if(popupDescText != null) popupDescText.text = desc;
-        
-        // Munculkan Panel Popup di layar
-        if(secretPopupPanel != null) secretPopupPanel.SetActive(true);
-    }
-
-    // --- LOGIKA TOMBOL AMBIL DIKLIK ---
-    public void ClaimSecretItem()
-    {
-        // Tutup Panel Popup
-        if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
-        
-        isTimerRunning = true;
-
-        SecretItemFound(pendingSprite, pendingReward); 
-    }
-
     // --- MESIN ANIMASI MENGKILAP ---
     private IEnumerator ShineSweepRoutine(RectTransform shineRect)
     {
         while(true)
         {
-            // 1. Taruh cahaya di luar kiri siluet
             shineRect.anchoredPosition = new Vector2(-100f, 0);
-            
-            // 2. Jeda diam (misal 2.5 detik sekali kilap)
             yield return new WaitForSeconds(2.5f);
             
-            // 3. Cahaya meluncur ke kanan dengan cepat
             float time = 0;
-            float duration = 0.6f; // Kecepatan kilap
+            float duration = 0.6f; 
             while(time < duration)
             {
                 time += Time.deltaTime;

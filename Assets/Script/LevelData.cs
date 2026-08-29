@@ -5,7 +5,9 @@ using System.Collections.Generic;
 public class LevelData : ScriptableObject
 {
     public string levelName;
-    public Sprite backgroundSprite;
+
+    [Header("Environment Setup")]
+    public GameObject environmentPrefab; 
 
     [Header("Time Setting")]
     public float timeLimit = 60f;

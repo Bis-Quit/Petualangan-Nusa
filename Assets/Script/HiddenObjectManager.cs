@@ -28,6 +28,7 @@ public class HiddenObjectManager : MonoBehaviour
     [Header("Setup UI Pop-up Secret")]
     public GameObject secretPopupPanel;
     public Image popupItemImage;
+    public Image popupMaskImage;
     public TextMeshProUGUI popupNameText;
     public TextMeshProUGUI popupDescText;
     
@@ -38,7 +39,7 @@ public class HiddenObjectManager : MonoBehaviour
 
     private int totalItemsToFind;
     private int itemsFoundCounter = 0;
-    private int currentCoins = 0; 
+    
     private float currentTime;
     private bool isTimerRunning = false;
 
@@ -65,11 +66,8 @@ public class HiddenObjectManager : MonoBehaviour
 
     void LoadLevel()
     {
-        // --- LOGIKA SPAWN ENVIRONMENT ---
-        // Munculkan Prefab ke layar
         GameObject spawnedEnv = Instantiate(currentLevelData.environmentPrefab, environmentContainer);
         
-        // Kumpulkan titik koordinat otomatis dari dalam Prefab
         Transform spawnPointsParent = spawnedEnv.transform.Find("SpawnPointHolder");
         List<Transform> availablePoints = new List<Transform>();
         
@@ -89,7 +87,6 @@ public class HiddenObjectManager : MonoBehaviour
         isTimerRunning = true;
         UpdateTimerUI();
 
-        // SEBAR BARANG UTAMA
         foreach (GameObject itemPrefab in currentLevelData.itemPrefabs)
         {
             if (availablePoints.Count == 0) break;
@@ -111,7 +108,6 @@ public class HiddenObjectManager : MonoBehaviour
             silhouetteDictionary.Add(itemScript.itemID, silhouetteImage);
         }
 
-        // SEBAR SECRET ITEM
         if (currentLevelData.secretItemPrefabs != null)
         {
             foreach (GameObject secretPrefab in currentLevelData.secretItemPrefabs)
@@ -129,7 +125,6 @@ public class HiddenObjectManager : MonoBehaviour
             }
         }
 
-        // SEBAR BARANG PENGECOH
         foreach (GameObject decoyPrefab in currentLevelData.decoyPrefabs)
         {
             if (availablePoints.Count == 0) break;
@@ -145,7 +140,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- LOGIKA WAKTU ---
     void Update()
     {
         if (isTimerRunning)
@@ -177,19 +171,29 @@ public class HiddenObjectManager : MonoBehaviour
         Debug.Log("Waktu Habis! GAME OVER!");
     }
 
-    // --- MESIN KASIR KOIN ---
+    // --- MESIN KASIR ---
     public void AddCoins(int amount)
     {
-        currentCoins += amount;
-        UpdateCoinUI();
+        if (CoinManager.Instance != null)
+        {
+            CoinManager.Instance.AddCoins(amount); // Kirim koin ke Bank Pusat
+            UpdateCoinUI();
+        }
+        else
+        {
+            Debug.LogError("Bro, CoinManager belum ada di scene!");
+        }
     }
 
     private void UpdateCoinUI()
     {
-        if (coinTextUI != null) coinTextUI.text = currentCoins.ToString();
+        if (coinTextUI != null && CoinManager.Instance != null) 
+        {
+            // Ambil data koin terbaru dari Bank Pusat
+            coinTextUI.text = CoinManager.Instance.GetTotalCoins().ToString();
+        }
     }
 
-    // --- MESIN PENALTI SPAM CLICK ---
     public void RegisterMissedClick()
     {
         if (!isTimerRunning) return;
@@ -232,7 +236,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- LOGIKA BARANG UTAMA DITEMUKAN ---
     public void ItemFound(string id, Sprite coloredSprite)
     {
         if (silhouetteDictionary.ContainsKey(id))
@@ -244,7 +247,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- LOGIKA MUNCULIN POPUP ---
     public void ShowSecretPopup(Sprite img, string name, string desc, int reward)
     {
         isTimerRunning = false; 
@@ -253,13 +255,15 @@ public class HiddenObjectManager : MonoBehaviour
         pendingReward = reward;
 
         if(popupItemImage != null) popupItemImage.sprite = img;
+        
+        if(popupMaskImage != null) popupMaskImage.sprite = img; 
+
         if(popupNameText != null) popupNameText.text = name;
         if(popupDescText != null) popupDescText.text = desc;
         
         if(secretPopupPanel != null) secretPopupPanel.SetActive(true);
     }
 
-    // --- LOGIKA TOMBOL AMBIL DIKLIK ---
     public void ClaimSecretItem()
     {
         if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
@@ -268,7 +272,6 @@ public class HiddenObjectManager : MonoBehaviour
         SecretItemFound(pendingSprite, pendingReward); 
     }
 
-    // --- LOGIKA SECRET ITEM DITEMUKAN ---
     public void SecretItemFound(Sprite secretSprite, int reward)
     {
         GameObject secretUIObj = Instantiate(secretSlotPrefab, secretPanelContainer);
@@ -286,7 +289,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- MESIN ANIMASI MENGKILAP ---
     private IEnumerator ShineSweepRoutine(RectTransform shineRect)
     {
         while(true)
@@ -306,7 +308,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- KONDISI MENANG ---
     private void CheckWinCondition()
     {
         if (itemsFoundCounter >= totalItemsToFind)
@@ -315,7 +316,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- ANIMASI ---
     private IEnumerator PopAnimation(Transform t)
     {
         float time = 0;

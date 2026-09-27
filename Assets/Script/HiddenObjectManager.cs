@@ -32,7 +32,7 @@ public class HiddenObjectManager : MonoBehaviour
     public TextMeshProUGUI popupNameText;
     public TextMeshProUGUI popupDescText;
 
-    [Header("Setup VFX Koin")] // BARU: Slot untuk prefab efek koin melayang
+    [Header("Setup VFX Koin")] 
     public GameObject floatingCoinPrefab;
     public Transform vfxContainer; 
     
@@ -101,8 +101,6 @@ public class HiddenObjectManager : MonoBehaviour
 
     void LoadLevel()
     {
-        // --- KODE AUDIO BARU ---
-        // Putar lagu spesifik pulau saat level dimuat
         if (AudioManager.Instance != null && currentLevelData != null && currentLevelData.bgmDaerah != null)
         {
             AudioManager.Instance.GantiBGM(currentLevelData.bgmDaerah);
@@ -150,6 +148,22 @@ public class HiddenObjectManager : MonoBehaviour
             silhouetteImage.sprite = itemPrefab.GetComponent<Image>().sprite;
             silhouetteImage.color = new Color(0, 0, 0, 0.8f); 
             
+            // --- KODE BARU: Pasang sensor klik Tooltip dan suntikkan nama pusaka ---
+            UISlotPusaka slotScript = newSilhouette.AddComponent<UISlotPusaka>();
+            
+            if (itemScript != null)
+            {
+                // Gunakan nama dari dataPusaka (ScriptableObject) jika ada
+                if (itemScript.dataPusaka != null && !string.IsNullOrEmpty(itemScript.dataPusaka.namaItem))
+                {
+                    slotScript.namaPusaka = itemScript.dataPusaka.namaItem; 
+                }
+                else
+                {
+                    // Fallback ke itemID kalau dataPusaka kosong
+                    slotScript.namaPusaka = itemScript.itemID; 
+                }
+            }
             silhouetteDictionary.Add(itemScript.itemID, silhouetteImage);
         }
 
@@ -195,7 +209,6 @@ public class HiddenObjectManager : MonoBehaviour
     {
         if (isTimerRunning)
         {
-            // Logika Timer Utama Game
             currentTime -= Time.deltaTime;
 
             if (currentTime <= 0)
@@ -206,10 +219,9 @@ public class HiddenObjectManager : MonoBehaviour
             }
             UpdateTimerUI();
 
-            // Logika AFK (Deteksi Sentuhan / Klik)
             if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
             {
-                timerAFK = 0f; // Reset timer kalau pemain ngeklik layar
+                timerAFK = 0f; 
             }
             else
             {
@@ -217,7 +229,7 @@ public class HiddenObjectManager : MonoBehaviour
                 if (timerAFK >= waktuBatasAFK)
                 {
                     BerikanPetunjukAFK();
-                    timerAFK = 0f; // Reset timer setelah memberikan petunjuk
+                    timerAFK = 0f; 
                 }
             }
         }
@@ -290,7 +302,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- FUNGSI MUNCULIN EFEK KOIN ---
     public void SpawnFloatingCoin(int amount, Vector3 spawnPosition)
     {
         if (floatingCoinPrefab == null || vfxContainer == null) return;
@@ -305,7 +316,6 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    // --- REVISI: TAMBAH PARAMETER POSISI ---
     public void ItemFound(string id, Sprite coloredSprite, ItemDataSO dataSO, Vector3 posisiBarang)
     {
         if (isLevelSelesai) return;
@@ -319,7 +329,6 @@ public class HiddenObjectManager : MonoBehaviour
                 PlayerPrefs.Save();
             }
 
-            // --- KODE AUDIO BARU: Bunyi SFX saat nemu barang ---
             if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
             {
                 AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxDapatBarang);
@@ -461,12 +470,10 @@ public class HiddenObjectManager : MonoBehaviour
 
     private void BerikanPetunjukAFK()
     {
-        // Cari semua barang yang masih aktif di scene
         HiddenItem[] barangSisa = FindObjectsOfType<HiddenItem>();
         
         if (barangSisa.Length > 0)
         {
-            // Pilih satu barang secara acak untuk diberi petunjuk
             int acak = Random.Range(0, barangSisa.Length);
             StartCoroutine(AnimasiPetunjukDenyut(barangSisa[acak].transform));
         }
@@ -478,28 +485,23 @@ public class HiddenObjectManager : MonoBehaviour
         
         Vector3 skalaAwal = t.localScale;
         float elapsed = 0f;
-        float durasi = 1.2f; // Durasi dipanjangkan agar efek bernapasnya lebih terlihat elegan
+        float durasi = 1.2f; 
 
         while (elapsed < durasi)
         {
-            // Mencegah error kalau barang telanjur diklik pas lagi berdenyut
             if (t == null) yield break; 
 
             elapsed += Time.deltaTime;
             
-            // Menggunakan fungsi Sine yang dikuadratkan. 
-            // Ini menciptakan kurva Ease-In & Ease-Out alami (0 -> 1 -> 0 -> 1 -> 0)
             float persentaseWaktu = elapsed / durasi;
             float kurvaSmooth = Mathf.Pow(Mathf.Sin(persentaseWaktu * Mathf.PI * 2f), 2);
             
-            // Objek akan membesar maksimal 20% (0.2f) dari ukuran asli dengan sangat mulus
             float efekSkala = 1f + (kurvaSmooth * 0.2f); 
             t.localScale = skalaAwal * efekSkala;
             
             yield return null;
         }
         
-        // Kembalikan ke ukuran semula dengan presisi
         if (t != null) t.localScale = skalaAwal;
     }
 }

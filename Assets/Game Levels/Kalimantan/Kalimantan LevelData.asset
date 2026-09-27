@@ -24,6 +24,6 @@ MonoBehaviour:
   decoyPrefabs:
   - {fileID: 1575722058774657514, guid: 6eb7041e0f78c4e4c8eb9200d0d391c6, type: 3}
   - {fileID: 1575722058774657514, guid: fe652b39db7784fe1bd9f516b491e561, type: 3}
-  - {fileID: 1575722058774657514, guid: 68e7c6d99984f481ea257230a982a0fd, type: 3}
   secretItemPrefabs:
   - {fileID: 3420389812088139521, guid: e159481e21f4f412089be95c8bf4fed6, type: 3}
+  bgmDaerah: {fileID: 0}

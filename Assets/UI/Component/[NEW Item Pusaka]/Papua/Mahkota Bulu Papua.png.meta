@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7b508c9322c634e7b9b8e0241acdbdd9
+guid: a25cd7041d47a44d8a0df2c5e625b053
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8661103529054426630
-    second: Mahkota Bulu Papua_0
+      213: -3999059978697921358
+    second: Mahkota Bulu Papua 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Mahkota Bulu Papua_0
+      name: Mahkota Bulu Papua 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: af924d39a349dc780800000000000000
-      internalID: -8661103529054426630
+      spriteID: 2bcaa36232c7088c0800000000000000
+      internalID: -3999059978697921358
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Mahkota Bulu Papua_0: -8661103529054426630
+      Mahkota Bulu Papua 1_0: -3999059978697921358
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

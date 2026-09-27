@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Mahkota bulu papua
   m_EditorClassIdentifier: Assembly-CSharp::ItemDataSO
   namaItem: mahkotta bulu papua
-  gambarItem: {fileID: 21300000, guid: 7b508c9322c634e7b9b8e0241acdbdd9, type: 3}
+  gambarItem: {fileID: 21300000, guid: a25cd7041d47a44d8a0df2c5e625b053, type: 3}
   lebar: 2
   tinggi: 1

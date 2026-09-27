@@ -215,7 +215,7 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         CobaMasukKoper(eventData);
     }
 
-    // --- SENSOR TERBARU (Sistem Magnet + Clamp Batas Koper) ---
+    // --- SENSOR TERBARU (Sistem Magnet + Clamp + Fix Rotasi) ---
     private void HitungPosisiGrid(PointerEventData eventData, out int targetX, out int targetY, out bool diAreaKoper)
     {
         targetX = -1;
@@ -229,19 +229,24 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             Vector2 posisiMouseLokal;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(container, eventData.position, eventData.pressEventCamera, out posisiMouseLokal);
 
+            // --- PERBAIKAN BUG TOMBAK ---
+            // Kita hitung lebar dan tinggi asli berdasarkan logika grid saat ini (sudah diputar atau belum),
+            // bukan berdasarkan fisik RectTransform yang bisa menipu sensor.
+            float lebarAktual = lebarItem * KoperManager.Instance.ukuranKotak.x;
+            float tinggiAktual = tinggiItem * KoperManager.Instance.ukuranKotak.y;
+
             // Geser titik baca ke ujung kiri atas objek agar selaras dengan grid
-            float posX = posisiMouseLokal.x + (container.rect.width / 2f) - (rectTransform.rect.width / 2f);
-            float posY = (container.rect.height / 2f) - posisiMouseLokal.y - (rectTransform.rect.height / 2f); 
+            float posX = posisiMouseLokal.x + (container.rect.width / 2f) - (lebarAktual / 2f);
+            float posY = (container.rect.height / 2f) - posisiMouseLokal.y - (tinggiAktual / 2f); 
+            // -----------------------------
 
             // Menggunakan RoundToInt agar otomatis mencari kotak grid terdekat
             targetX = Mathf.RoundToInt(posX / KoperManager.Instance.ukuranKotak.x);
             targetY = Mathf.RoundToInt(posY / KoperManager.Instance.ukuranKotak.y);
 
-            // --- KODE BARU: Cegah Bocor (Clamp / Mentok di pinggir) ---
-            // Memaksa nilai X dan Y tidak pernah melebihi ukuran maksimal koper dikurangi ukuran barang
+            // Memaksa nilai X dan Y tidak pernah melebihi batas koper
             targetX = Mathf.Clamp(targetX, 0, KoperManager.Instance.jumlahKolom - lebarItem);
             targetY = Mathf.Clamp(targetY, 0, KoperManager.Instance.jumlahBaris - tinggiItem);
-            // -----------------------------------------------------------
         }
     }
 

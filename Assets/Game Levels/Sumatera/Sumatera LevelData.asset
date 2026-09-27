@@ -15,6 +15,14 @@ MonoBehaviour:
   levelName: Sumatera
   environmentPrefab: {fileID: 7421260856614312545, guid: d6b5bcb998c1f4046bc15ced2504b108, type: 3}
   timeLimit: 60
-  itemPrefabs: []
-  decoyPrefabs: []
-  secretItemPrefabs: []
+  itemPrefabs:
+  - {fileID: 3420389812088139521, guid: d1e275626681346ce833f36b2ea67f2e, type: 3}
+  - {fileID: 3420389812088139521, guid: 2d9608e4a4bea49d3836296ab1849b27, type: 3}
+  - {fileID: 3420389812088139521, guid: bdc75d9c2be7749c5b3e32bc0e80a06f, type: 3}
+  - {fileID: 3420389812088139521, guid: d2c3d23a70f6a4e0da4b49d2806a9dda, type: 3}
+  decoyPrefabs:
+  - {fileID: 1575722058774657514, guid: 57a18c0f5761b41f196896e6aad1cda2, type: 3}
+  - {fileID: 1575722058774657514, guid: 695fdb757bb8144648e7488090911319, type: 3}
+  - {fileID: 1575722058774657514, guid: b2e55a05e903f4f25a675c131c486653, type: 3}
+  secretItemPrefabs:
+  - {fileID: 3420389812088139521, guid: df00177f22f014e049c719e69aa0f4ed, type: 3}

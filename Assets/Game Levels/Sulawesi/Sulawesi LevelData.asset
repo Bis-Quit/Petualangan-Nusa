@@ -15,6 +15,14 @@ MonoBehaviour:
   levelName: Sulawesi
   environmentPrefab: {fileID: 1676146747990369933, guid: a4b4e2a145ee447fb852f42a466717ff, type: 3}
   timeLimit: 60
-  itemPrefabs: []
-  decoyPrefabs: []
-  secretItemPrefabs: []
+  itemPrefabs:
+  - {fileID: 3420389812088139521, guid: 358668f879e874d61982486754426cfc, type: 3}
+  - {fileID: 3420389812088139521, guid: 7d76d2c3313034b4db33755ab5e96b2a, type: 3}
+  - {fileID: 3420389812088139521, guid: ebbddeae8b1a14db9b708a671f101371, type: 3}
+  - {fileID: 3420389812088139521, guid: 7bcdb10e44d1840af9eee8010152fd73, type: 3}
+  - {fileID: 3420389812088139521, guid: 5dcf71d9b42ba4c6e9af3e63e0ff9917, type: 3}
+  decoyPrefabs:
+  - {fileID: 1575722058774657514, guid: 40e2a03507b52451eadd31cfc91a79fe, type: 3}
+  - {fileID: 1575722058774657514, guid: d47a11523dbb44e65b0f47ae1538d9a1, type: 3}
+  secretItemPrefabs:
+  - {fileID: 3420389812088139521, guid: 62ca05ec59ff642f18a1bfb9d47f5ddf, type: 3}

@@ -7,6 +7,9 @@ public class CoinManager : MonoBehaviour
     private int totalCoins;
     private const string COIN_KEY = "PlayerTotalCoins";
 
+    // --- TAMBAHAN BARU: Kantong sementara buat bawa reward pindah scene ---
+    [HideInInspector] public int koinLevelTerakhir = 0; 
+
     private void Awake()
     {
         // Sistem Singleton

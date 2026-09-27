@@ -11,7 +11,6 @@ public class MapNode : MonoBehaviour
     public NodeState currentState = NodeState.Locked;
     public string nodeID;
 
-    // --- UBAH STRING JADI SO LEVEL DATA ---
     [Header("Data Level")]
     public LevelData levelData; 
 
@@ -93,7 +92,7 @@ public class MapNode : MonoBehaviour
 
             case NodeState.Completed:
                 if (nodeButton != null) nodeButton.interactable = true;
-                if (nodeImage != null) nodeImage.color = Color.white; 
+                if (nodeImage != null) nodeImage.color = completedColor; 
                 
                 if (completedPinObj != null) 
                 {
@@ -111,7 +110,6 @@ public class MapNode : MonoBehaviour
             Debug.Log("Node clicked: " + nodeID);
             onNodeActiveClicked?.Invoke();
 
-            // --- KIRIM SO KE MASCOT POPUP ---
             if (MascotPopupManager.Instance != null && levelData != null)
             {
                 MascotPopupManager.Instance.ShowMascotPopup(levelData);
@@ -125,9 +123,51 @@ public class MapNode : MonoBehaviour
 
     public void CompleteThisNode()
     {
+        StartCoroutine(AnimasiSelebrasiKomplit());
+    }
+
+    // --- ANIMASI 1: SWELL & WIGGLE UNTUK LEVEL SELESAI ---
+    private IEnumerator AnimasiSelebrasiKomplit()
+    {
         currentState = NodeState.Completed;
         SaveNodeState(2);
-        UpdateNodeVisuals();
+        
+        if (lockedPinObj != null) lockedPinObj.SetActive(false);
+        if (activePinObj != null) activePinObj.SetActive(false);
+        
+        if (nodeImage != null) nodeImage.color = completedColor;
+
+        if (completedPinObj != null)
+        {
+            completedPinObj.SetActive(true);
+            
+            float waktu = 0f;
+            float durasi = 0.6f; // Lama animasi goyang kegirangan
+            
+            while (waktu < durasi)
+            {
+                waktu += Time.deltaTime;
+                float persen = waktu / durasi;
+                
+                // Efek membesar membulat
+                float scaleT = Mathf.Sin(persen * Mathf.PI); 
+                completedPinObj.transform.localScale = completedPinStartScale + (Vector3.one * scaleT * 0.7f);
+                
+                // Efek goyang rotasi kiri-kanan
+                float sudutWiggle = Mathf.Sin(persen * Mathf.PI * 5f) * 20f; 
+                completedPinObj.transform.localRotation = Quaternion.Euler(0, 0, sudutWiggle);
+                
+                yield return null;
+            }
+            
+            completedPinObj.transform.localScale = completedPinStartScale;
+            completedPinObj.transform.localRotation = Quaternion.identity;
+
+            if (useCompletedAnimation) completedCoroutine = StartCoroutine(CompletedAnimation());
+        }
+
+        // Jeda dramatis sebelum pulau selanjutnya terbuka
+        yield return new WaitForSeconds(0.8f);
 
         if (nextNode != null)
         {
@@ -141,8 +181,69 @@ public class MapNode : MonoBehaviour
         {
             currentState = NodeState.Unlocked;
             SaveNodeState(1);
-            UpdateNodeVisuals();
+            
+            if (lockedPinObj != null) lockedPinObj.SetActive(false);
+            if (completedPinObj != null) completedPinObj.SetActive(false);
+            
+            if (nodeButton != null) nodeButton.interactable = true;
+            
+            // Catatan: nodeImage.color = unlockedColor; DIHAPUS dari sini 
+            // agar warnanya tidak ganti secara instan, melainkan lewat animasi di bawah
+
+            if (activePinObj != null) 
+            {
+                activePinObj.SetActive(true);
+            }
+
+            StartCoroutine(AnimasiPopUnlock());
         }
+    }
+
+    // --- ANIMASI 2: BOUNCY POP UNTUK LEVEL BARU ---
+    private IEnumerator AnimasiPopUnlock()
+    {
+        if (floatCoroutine != null) StopCoroutine(floatCoroutine);
+        
+        float waktu = 0f;
+        float durasi = 0.6f; // Durasi pas agar transisi warnanya terasa mulus
+        Vector3 skalaPinTarget = Vector3.one; 
+        Vector3 skalaPulauAwal = nodeImage != null ? nodeImage.transform.localScale : Vector3.one;
+        
+        while (waktu < durasi)
+        {
+            waktu += Time.deltaTime;
+            float persen = waktu / durasi;
+            
+            // 1. Animasi Pin Koper (Mantul/Overshoot)
+            if (activePinObj != null)
+            {
+                float scalePin = Mathf.Clamp01(persen) + Mathf.Sin(persen * Mathf.PI) * 0.4f;
+                activePinObj.transform.localScale = skalaPinTarget * scalePin;
+            }
+
+            // 2. Animasi Pulau (Transisi Warna Smooth & Efek Nafas)
+            if (nodeImage != null)
+            {
+                // Perubahan warna dari abu-abu ke putih secara perlahan
+                nodeImage.color = Color.Lerp(lockedColor, unlockedColor, persen);
+                
+                // Pulaunya sedikit mengembang (5%) lalu kembali normal
+                float efekScalePulau = 1f + Mathf.Sin(persen * Mathf.PI) * 0.05f; 
+                nodeImage.transform.localScale = skalaPulauAwal * efekScalePulau;
+            }
+            
+            yield return null;
+        }
+        
+        // Memastikan parameter kembali presisi 100% di detik terakhir
+        if (activePinObj != null) activePinObj.transform.localScale = skalaPinTarget;
+        if (nodeImage != null)
+        {
+            nodeImage.color = unlockedColor;
+            nodeImage.transform.localScale = skalaPulauAwal;
+        }
+
+        if (useFloatingAnimation) floatCoroutine = StartCoroutine(FloatingAnimation());
     }
 
     private void SaveNodeState(int stateValue)

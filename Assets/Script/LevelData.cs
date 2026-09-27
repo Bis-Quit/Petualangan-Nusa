@@ -20,4 +20,7 @@ public class LevelData : ScriptableObject
 
     [Header("Secret Items")]
     public List<GameObject> secretItemPrefabs;
+
+    [Header("Audio")]
+    public AudioClip bgmDaerah; 
 }

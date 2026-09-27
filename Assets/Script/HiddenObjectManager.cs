@@ -21,9 +21,9 @@ public class HiddenObjectManager : MonoBehaviour
     [Header("Setup UI Secret (Right)")]
     public Transform secretPanelContainer; 
 
-    [Header("UI Koin & Timer")]
-    public TextMeshProUGUI coinTextUI;
+    [Header("UI Timer & Game Over")]
     public TextMeshProUGUI timerTextUI;
+    public GameObject panelFail;
 
     [Header("Setup UI Pop-up Secret")]
     public GameObject secretPopupPanel;
@@ -31,14 +31,21 @@ public class HiddenObjectManager : MonoBehaviour
     public Image popupMaskImage;
     public TextMeshProUGUI popupNameText;
     public TextMeshProUGUI popupDescText;
+
+    [Header("Setup VFX Koin")] // BARU: Slot untuk prefab efek koin melayang
+    public GameObject floatingCoinPrefab;
+    public Transform vfxContainer; 
     
     private Sprite pendingSprite;
     private int pendingReward;
+    private ItemDataSO pendingDataSO;   
 
     private Dictionary<string, Image> silhouetteDictionary = new Dictionary<string, Image>();
 
     private int totalItemsToFind;
     private int itemsFoundCounter = 0;
+    private int koinLevelIni = 0;
+    public bool isLevelSelesai = false;
     
     private float currentTime;
     private bool isTimerRunning = false;
@@ -47,6 +54,10 @@ public class HiddenObjectManager : MonoBehaviour
     public float penaltyTime = 3f; 
     public int maxMissedClicks = 3; 
     private int currentMissedClicks = 0;
+
+    [Header("Pengaturan AFK / Petunjuk")]
+    public float waktuBatasAFK = 5f;
+    private float timerAFK = 0f;
 
     void Start()
     {
@@ -60,12 +71,43 @@ public class HiddenObjectManager : MonoBehaviour
 
         if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
 
-        UpdateCoinUI();
+        InventoryPemain.pusakaTerkumpul.Clear();
+
         LoadLevel();
+    }
+
+    private void FitToSpawnPoint(GameObject itemObj, Transform point)
+    {
+        RectTransform itemRect = itemObj.GetComponent<RectTransform>();
+        RectTransform pointRect = point.GetComponent<RectTransform>();
+
+        if (itemRect != null)
+        {
+            itemRect.localScale = Vector3.one;
+            itemRect.anchorMin = new Vector2(0.5f, 0.5f);
+            itemRect.anchorMax = new Vector2(0.5f, 0.5f);
+            itemRect.pivot = new Vector2(0.5f, 0.5f);
+            itemRect.anchoredPosition = Vector2.zero;
+
+            if (pointRect != null)
+            {
+                itemRect.sizeDelta = pointRect.rect.size;
+            }
+
+            Image img = itemObj.GetComponent<Image>();
+            if (img != null) img.preserveAspect = true;
+        }
     }
 
     void LoadLevel()
     {
+        // --- KODE AUDIO BARU ---
+        // Putar lagu spesifik pulau saat level dimuat
+        if (AudioManager.Instance != null && currentLevelData != null && currentLevelData.bgmDaerah != null)
+        {
+            AudioManager.Instance.GantiBGM(currentLevelData.bgmDaerah);
+        }
+
         GameObject spawnedEnv = Instantiate(currentLevelData.environmentPrefab, environmentContainer);
         
         Transform spawnPointsParent = spawnedEnv.transform.Find("SpawnPointHolder");
@@ -87,6 +129,7 @@ public class HiddenObjectManager : MonoBehaviour
         isTimerRunning = true;
         UpdateTimerUI();
 
+        // 1. Spawn Regular Items
         foreach (GameObject itemPrefab in currentLevelData.itemPrefabs)
         {
             if (availablePoints.Count == 0) break;
@@ -94,7 +137,9 @@ public class HiddenObjectManager : MonoBehaviour
             int randomIndex = Random.Range(0, availablePoints.Count);
             Transform selectedPoint = availablePoints[randomIndex];
 
-            GameObject spawnedItem = Instantiate(itemPrefab, selectedPoint.position, Quaternion.identity, selectedPoint);
+            GameObject spawnedItem = Instantiate(itemPrefab, selectedPoint, false);
+            FitToSpawnPoint(spawnedItem, selectedPoint); 
+
             HiddenItem itemScript = spawnedItem.GetComponent<HiddenItem>();
             itemScript.gameManager = this;
 
@@ -108,6 +153,7 @@ public class HiddenObjectManager : MonoBehaviour
             silhouetteDictionary.Add(itemScript.itemID, silhouetteImage);
         }
 
+        // 2. Spawn Secret Items
         if (currentLevelData.secretItemPrefabs != null)
         {
             foreach (GameObject secretPrefab in currentLevelData.secretItemPrefabs)
@@ -117,7 +163,9 @@ public class HiddenObjectManager : MonoBehaviour
                 int randomIndex = Random.Range(0, availablePoints.Count);
                 Transform selectedPoint = availablePoints[randomIndex];
                 
-                GameObject spawnedSecret = Instantiate(secretPrefab, selectedPoint.position, Quaternion.identity, selectedPoint);
+                GameObject spawnedSecret = Instantiate(secretPrefab, selectedPoint, false);
+                FitToSpawnPoint(spawnedSecret, selectedPoint);
+
                 SecretItem secretScript = spawnedSecret.GetComponent<SecretItem>();
                 if(secretScript != null) secretScript.gameManager = this;
 
@@ -125,6 +173,7 @@ public class HiddenObjectManager : MonoBehaviour
             }
         }
 
+        // 3. Spawn Decoy Items
         foreach (GameObject decoyPrefab in currentLevelData.decoyPrefabs)
         {
             if (availablePoints.Count == 0) break;
@@ -132,7 +181,9 @@ public class HiddenObjectManager : MonoBehaviour
             int randomIndex = Random.Range(0, availablePoints.Count);
             Transform selectedPoint = availablePoints[randomIndex];
             
-            GameObject spawnedDecoy = Instantiate(decoyPrefab, selectedPoint.position, Quaternion.identity, selectedPoint);
+            GameObject spawnedDecoy = Instantiate(decoyPrefab, selectedPoint, false);
+            FitToSpawnPoint(spawnedDecoy, selectedPoint);
+
             DecoyItem decoyScript = spawnedDecoy.GetComponent<DecoyItem>();
             if(decoyScript != null) decoyScript.gameManager = this;
 
@@ -144,6 +195,7 @@ public class HiddenObjectManager : MonoBehaviour
     {
         if (isTimerRunning)
         {
+            // Logika Timer Utama Game
             currentTime -= Time.deltaTime;
 
             if (currentTime <= 0)
@@ -153,6 +205,21 @@ public class HiddenObjectManager : MonoBehaviour
                 GameOver();
             }
             UpdateTimerUI();
+
+            // Logika AFK (Deteksi Sentuhan / Klik)
+            if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
+            {
+                timerAFK = 0f; // Reset timer kalau pemain ngeklik layar
+            }
+            else
+            {
+                timerAFK += Time.deltaTime;
+                if (timerAFK >= waktuBatasAFK)
+                {
+                    BerikanPetunjukAFK();
+                    timerAFK = 0f; // Reset timer setelah memberikan petunjuk
+                }
+            }
         }
     }
 
@@ -169,37 +236,24 @@ public class HiddenObjectManager : MonoBehaviour
     private void GameOver()
     {
         Debug.Log("Waktu Habis! GAME OVER!");
+        Time.timeScale = 0f; 
+        if (panelFail != null) panelFail.SetActive(true);
     }
 
-    // --- MESIN KASIR ---
     public void AddCoins(int amount)
     {
         if (CoinManager.Instance != null)
         {
-            CoinManager.Instance.AddCoins(amount); // Kirim koin ke Bank Pusat
-            UpdateCoinUI();
-        }
-        else
-        {
-            Debug.LogError("Bro, CoinManager belum ada di scene!");
-        }
-    }
-
-    private void UpdateCoinUI()
-    {
-        if (coinTextUI != null && CoinManager.Instance != null) 
-        {
-            // Ambil data koin terbaru dari Bank Pusat
-            coinTextUI.text = CoinManager.Instance.GetTotalCoins().ToString();
+            CoinManager.Instance.AddCoins(amount);
+            koinLevelIni += amount; 
         }
     }
 
     public void RegisterMissedClick()
     {
-        if (!isTimerRunning) return;
+        if (!isTimerRunning || isLevelSelesai) return;
 
         currentMissedClicks++;
-        
         if (currentMissedClicks >= maxMissedClicks)
         {
             ApplyPenalty();
@@ -236,28 +290,62 @@ public class HiddenObjectManager : MonoBehaviour
         }
     }
 
-    public void ItemFound(string id, Sprite coloredSprite)
+    // --- FUNGSI MUNCULIN EFEK KOIN ---
+    public void SpawnFloatingCoin(int amount, Vector3 spawnPosition)
     {
+        if (floatingCoinPrefab == null || vfxContainer == null) return;
+        
+        GameObject vfx = Instantiate(floatingCoinPrefab, vfxContainer);
+        vfx.transform.position = spawnPosition; 
+        
+        FloatingCoinVFX vfxScript = vfx.GetComponent<FloatingCoinVFX>();
+        if (vfxScript != null)
+        {
+            vfxScript.Setup(amount);
+        }
+    }
+
+    // --- REVISI: TAMBAH PARAMETER POSISI ---
+    public void ItemFound(string id, Sprite coloredSprite, ItemDataSO dataSO, Vector3 posisiBarang)
+    {
+        if (isLevelSelesai) return;
+
         if (silhouetteDictionary.ContainsKey(id))
         {
+            if (dataSO != null)
+            {
+                InventoryPemain.pusakaTerkumpul.Add(dataSO);
+                PlayerPrefs.SetInt("Koleksi_" + dataSO.namaItem, 1);
+                PlayerPrefs.Save();
+            }
+
+            // --- KODE AUDIO BARU: Bunyi SFX saat nemu barang ---
+            if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
+            {
+                AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxDapatBarang);
+            }
+
             StartCoroutine(UpdateSilhouetteAnim(silhouetteDictionary[id], coloredSprite));
             AddCoins(3);
+            SpawnFloatingCoin(3, posisiBarang);
+
             itemsFoundCounter++;
             CheckWinCondition();
         }
     }
 
-    public void ShowSecretPopup(Sprite img, string name, string desc, int reward)
+    public void ShowSecretPopup(Sprite img, string name, string desc, int reward, ItemDataSO dataSO)
     {
+        if (isLevelSelesai) return;
+        
         isTimerRunning = false; 
         
         pendingSprite = img;
         pendingReward = reward;
+        pendingDataSO = dataSO; 
 
         if(popupItemImage != null) popupItemImage.sprite = img;
-        
         if(popupMaskImage != null) popupMaskImage.sprite = img; 
-
         if(popupNameText != null) popupNameText.text = name;
         if(popupDescText != null) popupDescText.text = desc;
         
@@ -267,19 +355,32 @@ public class HiddenObjectManager : MonoBehaviour
     public void ClaimSecretItem()
     {
         if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
-        
         isTimerRunning = true;
-        SecretItemFound(pendingSprite, pendingReward); 
+        SecretItemFound(pendingSprite, pendingReward, pendingDataSO); 
     }
 
-    public void SecretItemFound(Sprite secretSprite, int reward)
+    public void SecretItemFound(Sprite secretSprite, int reward, ItemDataSO dataSO)
     {
         GameObject secretUIObj = Instantiate(secretSlotPrefab, secretPanelContainer);
         Image secretImg = secretUIObj.GetComponent<Image>();
         secretImg.sprite = secretSprite;
         secretImg.color = Color.white;
 
+        if (dataSO != null)
+        {
+            InventoryPemain.pusakaTerkumpul.Add(dataSO);
+            PlayerPrefs.SetInt("Koleksi_" + dataSO.namaItem, 1);
+            PlayerPrefs.Save();
+        }
+
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxDapatBarang);
+        }
+
         AddCoins(reward); 
+        SpawnFloatingCoin(reward, secretUIObj.transform.position);
+
         StartCoroutine(PopAnimation(secretImg.transform)); 
         
         Transform shineObj = secretUIObj.transform.Find("Shine");
@@ -310,9 +411,26 @@ public class HiddenObjectManager : MonoBehaviour
 
     private void CheckWinCondition()
     {
-        if (itemsFoundCounter >= totalItemsToFind)
+        if (itemsFoundCounter >= totalItemsToFind && !isLevelSelesai)
         {
-            Debug.Log("LEVEL SELESAI!");
+            isLevelSelesai = true; 
+            isTimerRunning = false; 
+            
+            if (CoinManager.Instance != null)
+            {
+                CoinManager.Instance.koinLevelTerakhir = koinLevelIni;
+            }
+
+            StartCoroutine(MunculkanMaskotSmooth());
+        }
+    }
+
+    private IEnumerator MunculkanMaskotSmooth()
+    {
+        yield return new WaitForSeconds(1.5f);
+        if (MascotPopupManager.Instance != null)
+        {
+            MascotPopupManager.Instance.ShowWinPopup();
         }
     }
 
@@ -339,5 +457,49 @@ public class HiddenObjectManager : MonoBehaviour
         silhouetteImg.color = Color.white; 
         silhouetteImg.sprite = coloredSprite;
         yield return StartCoroutine(PopAnimation(silhouetteImg.transform));
+    }
+
+    private void BerikanPetunjukAFK()
+    {
+        // Cari semua barang yang masih aktif di scene
+        HiddenItem[] barangSisa = FindObjectsOfType<HiddenItem>();
+        
+        if (barangSisa.Length > 0)
+        {
+            // Pilih satu barang secara acak untuk diberi petunjuk
+            int acak = Random.Range(0, barangSisa.Length);
+            StartCoroutine(AnimasiPetunjukDenyut(barangSisa[acak].transform));
+        }
+    }
+
+    private IEnumerator AnimasiPetunjukDenyut(Transform t)
+    {
+        if (t == null) yield break;
+        
+        Vector3 skalaAwal = t.localScale;
+        float elapsed = 0f;
+        float durasi = 1.2f; // Durasi dipanjangkan agar efek bernapasnya lebih terlihat elegan
+
+        while (elapsed < durasi)
+        {
+            // Mencegah error kalau barang telanjur diklik pas lagi berdenyut
+            if (t == null) yield break; 
+
+            elapsed += Time.deltaTime;
+            
+            // Menggunakan fungsi Sine yang dikuadratkan. 
+            // Ini menciptakan kurva Ease-In & Ease-Out alami (0 -> 1 -> 0 -> 1 -> 0)
+            float persentaseWaktu = elapsed / durasi;
+            float kurvaSmooth = Mathf.Pow(Mathf.Sin(persentaseWaktu * Mathf.PI * 2f), 2);
+            
+            // Objek akan membesar maksimal 20% (0.2f) dari ukuran asli dengan sangat mulus
+            float efekSkala = 1f + (kurvaSmooth * 0.2f); 
+            t.localScale = skalaAwal * efekSkala;
+            
+            yield return null;
+        }
+        
+        // Kembalikan ke ukuran semula dengan presisi
+        if (t != null) t.localScale = skalaAwal;
     }
 }

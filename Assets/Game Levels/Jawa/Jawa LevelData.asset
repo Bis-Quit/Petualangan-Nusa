@@ -16,11 +16,12 @@ MonoBehaviour:
   environmentPrefab: {fileID: 6244408870171257952, guid: 6903d4a5b0a7a4c4abf1c8b4d9ca069f, type: 3}
   timeLimit: 60
   itemPrefabs:
+  - {fileID: 3420389812088139521, guid: 543a808847dee4d8f94963f2143e1e66, type: 3}
   - {fileID: 3420389812088139521, guid: 40e882c4dd9774d7fb653b135579ad45, type: 3}
   - {fileID: 3420389812088139521, guid: 6edb02424bcb2496a926b91a52ef4d99, type: 3}
-  - {fileID: 3420389812088139521, guid: 543a808847dee4d8f94963f2143e1e66, type: 3}
   - {fileID: 3420389812088139521, guid: c1b20bcffbb39401da43288eed44d7cf, type: 3}
   decoyPrefabs:
+  - {fileID: 1575722058774657514, guid: 929f1cdad5b4041cb8f5ede31f35c805, type: 3}
   - {fileID: 1575722058774657514, guid: 3ffa34380dd0c43e8ac9bf73271b7ce6, type: 3}
   secretItemPrefabs:
   - {fileID: 3420389812088139521, guid: c5b3efd96b34c448fb50341f61a3a217, type: 3}

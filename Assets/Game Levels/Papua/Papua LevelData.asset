@@ -15,6 +15,14 @@ MonoBehaviour:
   levelName: Papua
   environmentPrefab: {fileID: 3140526716819443772, guid: f18a8500b8b9f44b4aa4351968ac713d, type: 3}
   timeLimit: 60
-  itemPrefabs: []
-  decoyPrefabs: []
-  secretItemPrefabs: []
+  itemPrefabs:
+  - {fileID: 3420389812088139521, guid: 885056210665240c391638247b3bd1d1, type: 3}
+  - {fileID: 3420389812088139521, guid: b7a0bd5d7a43a4ceeb9343fc11035087, type: 3}
+  - {fileID: 3420389812088139521, guid: fd548f5b8269648d0a3532d1dc1d79fe, type: 3}
+  - {fileID: 3420389812088139521, guid: 17ed0eab5400a4bf79ede65a44193ff2, type: 3}
+  - {fileID: 3420389812088139521, guid: 131f0b94240934930956e0cb5c04e963, type: 3}
+  decoyPrefabs:
+  - {fileID: 1575722058774657514, guid: 96c3e973fe6fd4f1182c9a08636e2093, type: 3}
+  - {fileID: 1575722058774657514, guid: 18ad354fbb36f4d1e9eabcd3922ead1a, type: 3}
+  secretItemPrefabs:
+  - {fileID: 3420389812088139521, guid: f9f0804b041f14ee4a9ce87e3c9fa8ce, type: 3}

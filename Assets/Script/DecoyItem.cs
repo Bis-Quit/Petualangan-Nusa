@@ -7,7 +7,6 @@ public class DecoyItem : MonoBehaviour
 {
     [HideInInspector] public HiddenObjectManager gameManager;
     private bool isShaking = false;
-    private bool hasYieldCoin = false;
 
     void Start()
     {
@@ -16,15 +15,11 @@ public class DecoyItem : MonoBehaviour
 
     public void OnDecoyClicked()
     {
+        if (gameManager != null && gameManager.isLevelSelesai) return;
+
         if (gameManager != null)
         {
             gameManager.RegisterMissedClick();
-
-            if (!hasYieldCoin)
-            {
-                gameManager.AddCoins(1);
-                hasYieldCoin = true;
-            }
         }
 
         if (!isShaking)
@@ -40,11 +35,11 @@ public class DecoyItem : MonoBehaviour
         Quaternion originalRotation = t.localRotation;
 
         float time = 0;
-        while (time < 0.3)
+        while (time < 0.3f)
         {
             time += Time.deltaTime;
             float zRotation = Mathf.Sin(time * 40f) * 15f;
-            t.localRotation = Quaternion.Euler(0,0, zRotation);
+            t.localRotation = Quaternion.Euler(0, 0, zRotation);
             yield return null;
         }
 

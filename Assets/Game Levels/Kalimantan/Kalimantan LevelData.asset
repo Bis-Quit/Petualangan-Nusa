@@ -15,6 +15,15 @@ MonoBehaviour:
   levelName: Kalimantan
   environmentPrefab: {fileID: 415080263995291938, guid: 5c3f5dc11c270405eb853ead52597292, type: 3}
   timeLimit: 60
-  itemPrefabs: []
-  decoyPrefabs: []
-  secretItemPrefabs: []
+  itemPrefabs:
+  - {fileID: 3420389812088139521, guid: 1cc0a43e888624ed2b840b9b0a246f74, type: 3}
+  - {fileID: 3420389812088139521, guid: e416e884f9f394a1aaf228ee64fd032d, type: 3}
+  - {fileID: 3420389812088139521, guid: 6f5e19090cdce4ac9ba983be06d33848, type: 3}
+  - {fileID: 3420389812088139521, guid: bea15b69d8c3e4824847108bd1bd7f07, type: 3}
+  - {fileID: 3420389812088139521, guid: 63d3be18023bd4d52955491305de27ad, type: 3}
+  decoyPrefabs:
+  - {fileID: 1575722058774657514, guid: 6eb7041e0f78c4e4c8eb9200d0d391c6, type: 3}
+  - {fileID: 1575722058774657514, guid: fe652b39db7784fe1bd9f516b491e561, type: 3}
+  - {fileID: 1575722058774657514, guid: 68e7c6d99984f481ea257230a982a0fd, type: 3}
+  secretItemPrefabs:
+  - {fileID: 3420389812088139521, guid: e159481e21f4f412089be95c8bf4fed6, type: 3}

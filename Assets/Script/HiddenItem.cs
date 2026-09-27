@@ -5,6 +5,9 @@ using System.Collections;
 [RequireComponent(typeof(Button))]
 public class HiddenItem : MonoBehaviour
 {
+    [Header("Data Utama")]
+    public ItemDataSO dataPusaka;
+
     [Header("Unique ID")]
     public string itemID;
 
@@ -17,9 +20,12 @@ public class HiddenItem : MonoBehaviour
 
     public void OnItemFound()
     {
+        if (gameManager != null && gameManager.isLevelSelesai) return;
+
         GetComponent<Button>().interactable = false;
         Sprite mySprite = GetComponent<Image>().sprite;
-        gameManager.ItemFound(itemID, mySprite);
+        
+        gameManager.ItemFound(itemID, mySprite, dataPusaka, transform.position); 
 
         StartCoroutine(PopAndDissappear());
     }
@@ -42,5 +48,23 @@ public class HiddenItem : MonoBehaviour
             yield return null;
         }
         gameObject.SetActive(false);
+    }
+
+    private void OnValidate()
+    {
+        if (dataPusaka != null && dataPusaka.gambarItem != null)
+        {
+            Image img = GetComponent<Image>();
+            if (img != null)
+            {
+                img.sprite = dataPusaka.gambarItem;
+                img.preserveAspect = true;
+            }
+            
+            if (string.IsNullOrEmpty(itemID))
+            {
+                itemID = dataPusaka.namaItem;
+            }
+        }
     }
 }

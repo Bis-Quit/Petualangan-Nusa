@@ -100,6 +100,12 @@ public class MascotPopupManager : MonoBehaviour
     {
         popupPanel.SetActive(true);
         isButtonClicked = false;
+        
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxMaskot != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxMaskot);
+        }
+
         StartCoroutine(AnimasiMumbulMaskot());
     }
 

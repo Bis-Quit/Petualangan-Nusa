@@ -107,6 +107,11 @@ public class MapNode : MonoBehaviour
     {
         if (currentState != NodeState.Locked)
         {
+            if (AudioManager.Instance != null && AudioManager.Instance.sfxPilihPulau != null)
+            {
+                AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxPilihPulau);
+            }
+            
             Debug.Log("Node clicked: " + nodeID);
             onNodeActiveClicked?.Invoke();
 

@@ -25,3 +25,4 @@ MonoBehaviour:
   - {fileID: 1575722058774657514, guid: 3ffa34380dd0c43e8ac9bf73271b7ce6, type: 3}
   secretItemPrefabs:
   - {fileID: 3420389812088139521, guid: c5b3efd96b34c448fb50341f61a3a217, type: 3}
+  bgmDaerah: {fileID: 8300000, guid: 144bc74d58dfb43e2bdec0cb4ac0059c, type: 3}

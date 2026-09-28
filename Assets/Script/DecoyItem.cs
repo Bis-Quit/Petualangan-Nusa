@@ -17,6 +17,12 @@ public class DecoyItem : MonoBehaviour
     {
         if (gameManager != null && gameManager.isLevelSelesai) return;
 
+        // --- TAMBAHAN AUDIO SALAH KLIK (DECOY) ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxError != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxError);
+        }
+
         if (gameManager != null)
         {
             gameManager.RegisterMissedClick();

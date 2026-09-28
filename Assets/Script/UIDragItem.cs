@@ -139,6 +139,12 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             rectTransform.localRotation = Quaternion.Euler(0, 0, -90f);
         else
             rectTransform.localRotation = Quaternion.Euler(0, 0, 0f);
+
+        // --- TAMBAHAN AUDIO ROTASI ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxPutarBarang != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxPutarBarang);
+        }
     }
 
     private void MatikanHintDenganFade()
@@ -183,13 +189,18 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
                 dataPusaka.tinggi * KoperManager.Instance.ukuranKotak.y
             );
         }
+
+        // --- TAMBAHAN AUDIO AMBIL BARANG ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxAmbilBarang != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxAmbilBarang);
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         rectTransform.anchoredPosition += eventData.delta / GetComponentInParent<Canvas>().scaleFactor;
 
-        // --- SISTEM INDIKATOR WARNA SAAT DI-DRAG ---
         int targetX, targetY;
         bool diAreaKoper;
         HitungPosisiGrid(eventData, out targetX, out targetY, out diAreaKoper);
@@ -215,7 +226,6 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         CobaMasukKoper(eventData);
     }
 
-    // --- SENSOR TERBARU (Sistem Magnet + Clamp + Fix Rotasi) ---
     private void HitungPosisiGrid(PointerEventData eventData, out int targetX, out int targetY, out bool diAreaKoper)
     {
         targetX = -1;
@@ -229,22 +239,15 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             Vector2 posisiMouseLokal;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(container, eventData.position, eventData.pressEventCamera, out posisiMouseLokal);
 
-            // --- PERBAIKAN BUG TOMBAK ---
-            // Kita hitung lebar dan tinggi asli berdasarkan logika grid saat ini (sudah diputar atau belum),
-            // bukan berdasarkan fisik RectTransform yang bisa menipu sensor.
             float lebarAktual = lebarItem * KoperManager.Instance.ukuranKotak.x;
             float tinggiAktual = tinggiItem * KoperManager.Instance.ukuranKotak.y;
 
-            // Geser titik baca ke ujung kiri atas objek agar selaras dengan grid
             float posX = posisiMouseLokal.x + (container.rect.width / 2f) - (lebarAktual / 2f);
             float posY = (container.rect.height / 2f) - posisiMouseLokal.y - (tinggiAktual / 2f); 
-            // -----------------------------
 
-            // Menggunakan RoundToInt agar otomatis mencari kotak grid terdekat
             targetX = Mathf.RoundToInt(posX / KoperManager.Instance.ukuranKotak.x);
             targetY = Mathf.RoundToInt(posY / KoperManager.Instance.ukuranKotak.y);
 
-            // Memaksa nilai X dan Y tidak pernah melebihi batas koper
             targetX = Mathf.Clamp(targetX, 0, KoperManager.Instance.jumlahKolom - lebarItem);
             targetY = Mathf.Clamp(targetY, 0, KoperManager.Instance.jumlahBaris - tinggiItem);
         }
@@ -260,7 +263,7 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
         int targetX, targetY;
         bool diAreaKoper;
-        HitungPosisiGrid(eventData, out targetX, out targetY, out diAreaKoper); // Pakai sensor baru
+        HitungPosisiGrid(eventData, out targetX, out targetY, out diAreaKoper); 
 
         if (diAreaKoper)
         {
@@ -279,11 +282,24 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
                 gridX = targetX;
                 gridY = targetY;
 
+                // --- TAMBAHAN AUDIO BERHASIL SNAP ---
+                if (AudioManager.Instance != null && AudioManager.Instance.sfxSnapKoper != null)
+                {
+                    AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxSnapKoper);
+                }
+
                 SnapKeGrid(targetX, targetY);
                 KoperManager.Instance.CekKemenangan(); 
                 return;
             }
         }
+        
+        // --- TAMBAHAN AUDIO GAGAL (Nabrak/Luar Batas) ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxError != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxError);
+        }
+        
         KembalikanKePosisiAwal();
     }
 

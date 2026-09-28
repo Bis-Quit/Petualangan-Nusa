@@ -183,6 +183,11 @@ public class JournalManager : MonoBehaviour
     {
         sedangAnimasi = true;
 
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxKertasJurnal != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxKertasJurnal);
+        }
+
         if (wadahHalamanKiri != null) wadahHalamanKiri.SetActive(false);
         if (wadahHalamanKanan != null) wadahHalamanKanan.SetActive(false);
         if (turningPage != null) turningPage.SetActive(true);

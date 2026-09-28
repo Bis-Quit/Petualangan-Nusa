@@ -127,7 +127,6 @@ public class HiddenObjectManager : MonoBehaviour
         isTimerRunning = true;
         UpdateTimerUI();
 
-        // 1. Spawn Regular Items
         foreach (GameObject itemPrefab in currentLevelData.itemPrefabs)
         {
             if (availablePoints.Count == 0) break;
@@ -148,26 +147,23 @@ public class HiddenObjectManager : MonoBehaviour
             silhouetteImage.sprite = itemPrefab.GetComponent<Image>().sprite;
             silhouetteImage.color = new Color(0, 0, 0, 0.8f); 
             
-            // --- KODE BARU: Pasang sensor klik Tooltip dan suntikkan nama pusaka ---
             UISlotPusaka slotScript = newSilhouette.AddComponent<UISlotPusaka>();
             
             if (itemScript != null)
             {
-                // Gunakan nama dari dataPusaka (ScriptableObject) jika ada
                 if (itemScript.dataPusaka != null && !string.IsNullOrEmpty(itemScript.dataPusaka.namaItem))
                 {
                     slotScript.namaPusaka = itemScript.dataPusaka.namaItem; 
                 }
                 else
                 {
-                    // Fallback ke itemID kalau dataPusaka kosong
                     slotScript.namaPusaka = itemScript.itemID; 
                 }
             }
+
             silhouetteDictionary.Add(itemScript.itemID, silhouetteImage);
         }
 
-        // 2. Spawn Secret Items
         if (currentLevelData.secretItemPrefabs != null)
         {
             foreach (GameObject secretPrefab in currentLevelData.secretItemPrefabs)
@@ -187,7 +183,6 @@ public class HiddenObjectManager : MonoBehaviour
             }
         }
 
-        // 3. Spawn Decoy Items
         foreach (GameObject decoyPrefab in currentLevelData.decoyPrefabs)
         {
             if (availablePoints.Count == 0) break;
@@ -250,6 +245,12 @@ public class HiddenObjectManager : MonoBehaviour
         Debug.Log("Waktu Habis! GAME OVER!");
         Time.timeScale = 0f; 
         if (panelFail != null) panelFail.SetActive(true);
+
+        // --- TAMBAHAN AUDIO GAME OVER KALAH ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxKalah != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxKalah);
+        }
     }
 
     public void AddCoins(int amount)
@@ -348,6 +349,12 @@ public class HiddenObjectManager : MonoBehaviour
         if (isLevelSelesai) return;
         
         isTimerRunning = false; 
+
+        // --- TAMBAHAN AUDIO SECRET ITEM (MUNCUL POPUP) ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxDapatBarang);
+        }
         
         pendingSprite = img;
         pendingReward = reward;
@@ -380,11 +387,6 @@ public class HiddenObjectManager : MonoBehaviour
             InventoryPemain.pusakaTerkumpul.Add(dataSO);
             PlayerPrefs.SetInt("Koleksi_" + dataSO.namaItem, 1);
             PlayerPrefs.Save();
-        }
-
-        if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
-        {
-            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxDapatBarang);
         }
 
         AddCoins(reward); 

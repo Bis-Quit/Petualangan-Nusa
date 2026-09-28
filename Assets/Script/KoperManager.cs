@@ -15,8 +15,8 @@ public class KoperManager : MonoBehaviour
     public RectTransform itemContainer; 
 
     [Header("Setup Indikator Warna (Highlight)")]
-    public RectTransform highlightRect; // Tarik objek Highlight_Grid ke sini
-    public Image highlightImage;        // Tarik komponen Image dari Highlight_Grid ke sini
+    public RectTransform highlightRect; 
+    public Image highlightImage;        
 
     [Header("Setup Kemenangan")]
     public Transform wadahPanelMeja; 
@@ -36,24 +36,19 @@ public class KoperManager : MonoBehaviour
         petaKoper = new bool[jumlahKolom, jumlahBaris];
     }
 
-    // --- FUNGSI BARU UNTUK HIGHLIGHT GRID ---
     public void AturHighlight(int x, int y, int lebar, int tinggi)
     {
         if (highlightRect == null) return;
         
-        // Cek warna: Hijau (muat) atau Merah (nabrak/penuh)
         bool muat = CekBisaMuat(x, y, lebar, tinggi);
         highlightImage.color = muat ? new Color(0.2f, 1f, 0.2f, 0.5f) : new Color(1f, 0.2f, 0.2f, 0.5f);
         
-        // Sesuaikan ukuran kotak indikator dengan barang
         highlightRect.sizeDelta = new Vector2(lebar * ukuranKotak.x, tinggi * ukuranKotak.y);
         
-        // Sesuaikan titik Anchor dan Pivot agar sama dengan perhitungan Grid
         highlightRect.anchorMin = new Vector2(0.5f, 0.5f);
         highlightRect.anchorMax = new Vector2(0.5f, 0.5f);
         highlightRect.pivot = new Vector2(0.5f, 0.5f);
 
-        // Hitung posisi snap indikator
         float posX = - (itemContainer.rect.width / 2f) + (x * ukuranKotak.x) + ((lebar * ukuranKotak.x) / 2f);
         float posY = (itemContainer.rect.height / 2f) - (y * ukuranKotak.y) - ((tinggi * ukuranKotak.y) / 2f);
         
@@ -65,7 +60,6 @@ public class KoperManager : MonoBehaviour
     {
         if (highlightRect != null) highlightRect.gameObject.SetActive(false);
     }
-    // ----------------------------------------
 
     public bool CekBisaMuat(int startX, int startY, int lebarItem, int tinggiItem)
     {
@@ -97,7 +91,20 @@ public class KoperManager : MonoBehaviour
 
     private IEnumerator AnimasiKemasDanPergi()
     {
+        // --- BARU: Matikan BGM level agar SFX koper & pop-up menang terdengar jelas ---
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.HentikanBGM();
+        }
+
+        // 1. Biarkan diam dulu 0.5 detik setelah barang terakhir ditaruh
         yield return new WaitForSeconds(0.5f);
+
+        // 2. Play audio geser koper persis saat mulai bergerak
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxTutupKoper != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxTutupKoper);
+        }
 
         float waktu = 0;
         float durasi = 1f; 
@@ -116,7 +123,7 @@ public class KoperManager : MonoBehaviour
         if (efekCahaya != null) efekCahaya.SetActive(true);
         if (visualKoperTerbuka != null) visualKoperTerbuka.SetActive(false); 
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.2f);
 
         if (efekCahaya != null) efekCahaya.SetActive(false);
 
@@ -136,6 +143,11 @@ public class KoperManager : MonoBehaviour
 
         if (winMenu != null)
         {
+            if (AudioManager.Instance != null && AudioManager.Instance.sfxMenang != null)
+            {
+                AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxMenang);
+            }
+            
             winMenu.TampilkanMenang(3);
         }
     }

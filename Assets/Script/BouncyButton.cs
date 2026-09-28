@@ -26,6 +26,12 @@ public class BouncyButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        // --- TAMBAHAN AUDIO KLIK TOMBOL ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxKlikTombol != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxKlikTombol);
+        }
+
         if (activeAnimation != null) StopCoroutine(activeAnimation);
         activeAnimation = StartCoroutine(ScaleAnimation(initialScale * pressedScale, pressDuration));
     }

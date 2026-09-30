@@ -17,6 +17,12 @@ public class UIWinMenu : MonoBehaviour
     [Header("Referensi UI")]
     public TextMeshProUGUI textKoin;
     public GameObject[] bintangMenyala; 
+    
+    [Header("Efek Visual Latar (Baru)")]
+    [Tooltip("Masukkan objek Pancaran Cahaya (BurstEffect) ke sini")]
+    public GameObject efekPancaranCahaya; 
+    [Tooltip("Masukkan ke-4 objek pecahan SparkEffect (Bintang) ke sini")]
+    public GameObject[] bintangLatarBelakang; 
 
     [Header("Pengaturan Animasi")]
     public float durasiAnimasi = 0.4f;
@@ -61,6 +67,16 @@ public class UIWinMenu : MonoBehaviour
         {
             if (bintangMenyala[i] != null) bintangMenyala[i].SetActive(false);
         }
+        
+        // Matikan burst dan bintang latar sebelum popup muncul
+        if (efekPancaranCahaya != null) efekPancaranCahaya.SetActive(false);
+        if (bintangLatarBelakang != null)
+        {
+            for (int i = 0; i < bintangLatarBelakang.Length; i++)
+            {
+                if (bintangLatarBelakang[i] != null) bintangLatarBelakang[i].SetActive(false);
+            }
+        }
 
         gameObject.SetActive(true); 
         isButtonClicked = false;
@@ -88,7 +104,16 @@ public class UIWinMenu : MonoBehaviour
         canvasGroup.alpha = 1f;
         popupVisual.localScale = skalaAwalPopup;
 
+        // FUNGSI BARU: Munculkan Pancaran Cahaya dengan efek nge-per
+        if (efekPancaranCahaya != null)
+        {
+            efekPancaranCahaya.SetActive(true);
+            StartCoroutine(AnimasiPopSederhana(efekPancaranCahaya.GetComponent<RectTransform>()));
+        }
+
         yield return new WaitForSecondsRealtime(0.2f);
+        
+        StartCoroutine(MunculkanBintangLatarBergiliran());
 
         float durasiBintang = 0.3f; 
         for (int i = 0; i < jumlahBintang; i++)
@@ -137,6 +162,42 @@ public class UIWinMenu : MonoBehaviour
 
             textKoin.text = targetKoin.ToString() + " Koin";
             StartCoroutine(AnimasiPopTeks(textKoin.GetComponent<RectTransform>()));
+        }
+    }
+    
+    // FUNGSI BARU: Animasi membesar membal untuk Pancaran Cahaya
+    private IEnumerator AnimasiPopSederhana(RectTransform rect)
+    {
+        if (rect == null) yield break;
+        
+        Vector3 skalaAsli = rect.localScale;
+        rect.localScale = Vector3.zero;
+
+        float waktu = 0f;
+        float durasi = 0.35f;
+
+        while (waktu < durasi)
+        {
+            waktu += Time.unscaledDeltaTime;
+            // Pinjam kurvaBouncy yang udah diset di Inspector biar gerakannya seragam
+            rect.localScale = skalaAsli * kurvaBouncy.Evaluate(waktu / durasi);
+            yield return null;
+        }
+
+        rect.localScale = skalaAsli;
+    }
+
+    private IEnumerator MunculkanBintangLatarBergiliran()
+    {
+        if (bintangLatarBelakang == null) yield break;
+
+        for (int i = 0; i < bintangLatarBelakang.Length; i++)
+        {
+            if (bintangLatarBelakang[i] != null)
+            {
+                bintangLatarBelakang[i].SetActive(true);
+            }
+            yield return new WaitForSecondsRealtime(0.15f); 
         }
     }
 

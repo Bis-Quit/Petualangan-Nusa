@@ -27,6 +27,9 @@ public class HiddenObjectManager : MonoBehaviour
 
     [Header("Setup UI Pop-up Secret")]
     public GameObject secretPopupPanel;
+    [Tooltip("Tarik panel popup secret yang udah dikasih script UIPopupAnimator ke sini")]
+    public UIPopupAnimator secretPopupAnimator; 
+
     public Image popupItemImage;
     public Image popupMaskImage;
     public TextMeshProUGUI popupNameText;
@@ -59,6 +62,10 @@ public class HiddenObjectManager : MonoBehaviour
     public float waktuBatasAFK = 5f;
     private float timerAFK = 0f;
 
+    // --- VARIABEL BARU: Penyimpan Sementara ---
+    private List<ItemDataSO> pusakaDiamankanLevelIni = new List<ItemDataSO>();
+    private bool dapatSecretLevelIni = false;
+
     void Start()
     {
         if (ActiveLevelData != null) currentLevelData = ActiveLevelData; 
@@ -70,6 +77,10 @@ public class HiddenObjectManager : MonoBehaviour
         }
 
         if(secretPopupPanel != null) secretPopupPanel.SetActive(false);
+
+        // Reset penyimpan sementara setiap kali main
+        pusakaDiamankanLevelIni.Clear();
+        dapatSecretLevelIni = false;
 
         InventoryPemain.pusakaTerkumpul.Clear();
 
@@ -242,11 +253,9 @@ public class HiddenObjectManager : MonoBehaviour
 
     private void GameOver()
     {
-        Debug.Log("Waktu Habis! GAME OVER!");
         Time.timeScale = 0f; 
         if (panelFail != null) panelFail.SetActive(true);
 
-        // --- TAMBAHAN AUDIO GAME OVER KALAH ---
         if (AudioManager.Instance != null && AudioManager.Instance.sfxKalah != null)
         {
             AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxKalah);
@@ -325,9 +334,8 @@ public class HiddenObjectManager : MonoBehaviour
         {
             if (dataSO != null)
             {
-                InventoryPemain.pusakaTerkumpul.Add(dataSO);
-                PlayerPrefs.SetInt("Koleksi_" + dataSO.namaItem, 1);
-                PlayerPrefs.Save();
+                // LOGIKA BARU: Simpan sementara, jangan langsung masuk PlayerPrefs
+                pusakaDiamankanLevelIni.Add(dataSO);
             }
 
             if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
@@ -350,7 +358,6 @@ public class HiddenObjectManager : MonoBehaviour
         
         isTimerRunning = false; 
 
-        // --- TAMBAHAN AUDIO SECRET ITEM (MUNCUL POPUP) ---
         if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
         {
             AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxDapatBarang);
@@ -365,7 +372,11 @@ public class HiddenObjectManager : MonoBehaviour
         if(popupNameText != null) popupNameText.text = name;
         if(popupDescText != null) popupDescText.text = desc;
         
-        if(secretPopupPanel != null) secretPopupPanel.SetActive(true);
+        if(secretPopupPanel != null) 
+        {
+            secretPopupPanel.SetActive(true);
+            if(secretPopupAnimator != null) secretPopupAnimator.MulaiAnimasi();
+        }
     }
 
     public void ClaimSecretItem()
@@ -384,9 +395,9 @@ public class HiddenObjectManager : MonoBehaviour
 
         if (dataSO != null)
         {
-            InventoryPemain.pusakaTerkumpul.Add(dataSO);
-            PlayerPrefs.SetInt("Koleksi_" + dataSO.namaItem, 1);
-            PlayerPrefs.Save();
+            // LOGIKA BARU: Simpan sementara dan tandai bahwa secret sudah diambil
+            pusakaDiamankanLevelIni.Add(dataSO);
+            dapatSecretLevelIni = true;
         }
 
         AddCoins(reward); 
@@ -431,6 +442,22 @@ public class HiddenObjectManager : MonoBehaviour
             {
                 CoinManager.Instance.koinLevelTerakhir = koinLevelIni;
             }
+
+            // --- EKSEKUSI SIMPAN PERMANEN (HANYA SAAT MENANG) ---
+            foreach (ItemDataSO data in pusakaDiamankanLevelIni)
+            {
+                InventoryPemain.pusakaTerkumpul.Add(data);
+                PlayerPrefs.SetInt("Koleksi_" + data.namaItem, 1);
+            }
+
+            // Kalau ada secret yang diambil di level ini, nyalakan notif Jurnal
+            if (dapatSecretLevelIni)
+            {
+                PlayerPrefs.SetInt("AdaPusakaBaru", 1);
+            }
+            
+            PlayerPrefs.Save();
+            // ---------------------------------------------------
 
             StartCoroutine(MunculkanMaskotSmooth());
         }

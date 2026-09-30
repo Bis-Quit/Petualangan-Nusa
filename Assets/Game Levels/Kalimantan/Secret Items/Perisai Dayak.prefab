@@ -68,7 +68,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1133bb91040ca412db3240beeef722dc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 259be2c782f244d099f516d5dd915064, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -149,6 +149,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SecretItem
   dataPusaka: {fileID: 11400000, guid: 6e34460ba1dc54659bfb612a47e121be, type: 2}
   secretName: Perisai Dayak
-  secretDescription: Senjata adat khas Dayak
+  secretDescription: Perisai tradisional suku Dayak
   coinReward: 4
   gameManager: {fileID: 0}

@@ -32,6 +32,9 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     private float timerJedaKlik = 0f;
     private float batasWaktuJeda = 3.5f; 
 
+    // --- VARIABEL BARU: Gembok Kemenangan ---
+    private bool permainanSelesai = false;
+
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -79,6 +82,9 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        // --- CEGATAN BARU: Jangan respons klik kalau game udah selesai ---
+        if (permainanSelesai) return;
+
         if (isDragging) return;
 
         if (sudahDiKoper)
@@ -140,7 +146,6 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         else
             rectTransform.localRotation = Quaternion.Euler(0, 0, 0f);
 
-        // --- TAMBAHAN AUDIO ROTASI ---
         if (AudioManager.Instance != null && AudioManager.Instance.sfxPutarBarang != null)
         {
             AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxPutarBarang);
@@ -165,6 +170,9 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // --- CEGATAN BARU: Jangan biarkan di-drag kalau game udah selesai ---
+        if (permainanSelesai) return;
+
         isDragging = true; 
         isMenungguKlikKedua = false;
         if (hintRotate != null) hintRotate.SetActive(false);
@@ -190,7 +198,6 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             );
         }
 
-        // --- TAMBAHAN AUDIO AMBIL BARANG ---
         if (AudioManager.Instance != null && AudioManager.Instance.sfxAmbilBarang != null)
         {
             AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxAmbilBarang);
@@ -199,6 +206,8 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (permainanSelesai) return; // Pengaman ekstra
+
         rectTransform.anchoredPosition += eventData.delta / GetComponentInParent<Canvas>().scaleFactor;
 
         int targetX, targetY;
@@ -217,6 +226,8 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (permainanSelesai) return; // Pengaman ekstra
+
         isDragging = false; 
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
@@ -282,7 +293,6 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
                 gridX = targetX;
                 gridY = targetY;
 
-                // --- TAMBAHAN AUDIO BERHASIL SNAP ---
                 if (AudioManager.Instance != null && AudioManager.Instance.sfxSnapKoper != null)
                 {
                     AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxSnapKoper);
@@ -290,11 +300,17 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
                 SnapKeGrid(targetX, targetY);
                 KoperManager.Instance.CekKemenangan(); 
+                
+                // --- PENGAMAN FINAL ---
+                // Kalau koper sudah penuh, matikan interaksi SEMUA item
+                if (KoperManager.Instance.wadahPanelMeja != null && KoperManager.Instance.wadahPanelMeja.childCount == 0)
+                {
+                    KunciSemuaItem();
+                }
                 return;
             }
         }
         
-        // --- TAMBAHAN AUDIO GAGAL (Nabrak/Luar Batas) ---
         if (AudioManager.Instance != null && AudioManager.Instance.sfxError != null)
         {
             AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxError);
@@ -327,5 +343,20 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         transform.SetParent(parentAsli, true);
         rectTransform.anchoredPosition = posisiAwal;
         sudahDiKoper = false;
+    }
+
+    // --- FUNGSI BARU: Mengunci seluruh item di scene ---
+    private void KunciSemuaItem()
+    {
+        // Cari semua UIDragItem yang ada di scene dan kunci
+        UIDragItem[] semuaItem = FindObjectsOfType<UIDragItem>();
+        foreach (UIDragItem item in semuaItem)
+        {
+            item.permainanSelesai = true;
+            
+            // Matikan raycast biar klik tembus
+            Image img = item.GetComponent<Image>();
+            if (img != null) img.raycastTarget = false;
+        }
     }
 }

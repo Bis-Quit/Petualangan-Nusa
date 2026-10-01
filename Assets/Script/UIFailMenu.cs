@@ -6,12 +6,18 @@ using System.Collections;
 public class UIFailMenu : MonoBehaviour
 {
     [Header("Pengaturan Navigasi")]
-    public string namaSceneHome = "scnMap";
+    public string namaSceneHome = "mainMenu";
 
     [Header("Target Animasi Utama")]
     public RectTransform popupVisual; 
 
-    [Header("Referensi Tombol (Biar bisa goyang)")]
+    [Header("Efek Asap & Serpihan (Looping Partikel)")]
+    public RectTransform[] daftarAsap;
+    public RectTransform[] daftarSerpihan;
+    public float durasiLedakan = 0.3f;
+    public AnimationCurve kurvaLedakan = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+    [Header("Referensi Tombol")]
     public RectTransform tombolTryAgain;
     public RectTransform tombolMainMenu;
 
@@ -24,21 +30,68 @@ public class UIFailMenu : MonoBehaviour
     public float intensitasGetar = 10f; 
     public float jedaAntarGetar = 2f; 
 
-    [Header("VFX Hantaman (Baru)")]
-    public UIDustImpact efekDebu; 
-
     private CanvasGroup canvasGroup;
     private bool isButtonClicked = false; 
-    private Vector2 posisiAsli;
+    private Vector2 posisiAsliPopup;
     private Coroutine getarCoroutine;
+    private Coroutine loopPartikelCoroutine;
+
+    private Vector2[] posisiAsliAsap;
+    private Vector3[] skalaAsliAsap;
+    private CanvasGroup[] cgAsap;
+
+    private Vector2[] posisiAsliSerpihan;
+    private Vector3[] skalaAsliSerpihan;
+    private CanvasGroup[] cgSerpihan;
 
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
-        if (popupVisual != null)
+        if (popupVisual != null) posisiAsliPopup = popupVisual.anchoredPosition;
+
+        // --- Setup Otomatis Data & CanvasGroup buat efek Memudar ---
+        if (daftarAsap != null)
         {
-            posisiAsli = popupVisual.anchoredPosition;
+            posisiAsliAsap = new Vector2[daftarAsap.Length];
+            skalaAsliAsap = new Vector3[daftarAsap.Length];
+            cgAsap = new CanvasGroup[daftarAsap.Length];
+            
+            for (int i = 0; i < daftarAsap.Length; i++)
+            {
+                if (daftarAsap[i] != null)
+                {
+                    posisiAsliAsap[i] = daftarAsap[i].anchoredPosition;
+                    skalaAsliAsap[i] = daftarAsap[i].localScale;
+                    cgAsap[i] = TambahkanCanvasGroupAman(daftarAsap[i].gameObject);
+                }
+            }
         }
+
+        if (daftarSerpihan != null)
+        {
+            posisiAsliSerpihan = new Vector2[daftarSerpihan.Length];
+            skalaAsliSerpihan = new Vector3[daftarSerpihan.Length];
+            cgSerpihan = new CanvasGroup[daftarSerpihan.Length];
+
+            for (int i = 0; i < daftarSerpihan.Length; i++)
+            {
+                if (daftarSerpihan[i] != null)
+                {
+                    posisiAsliSerpihan[i] = daftarSerpihan[i].anchoredPosition;
+                    skalaAsliSerpihan[i] = daftarSerpihan[i].localScale;
+                    cgSerpihan[i] = TambahkanCanvasGroupAman(daftarSerpihan[i].gameObject);
+                }
+            }
+        }
+    }
+
+    private CanvasGroup TambahkanCanvasGroupAman(GameObject obj)
+    {
+        CanvasGroup cg = obj.GetComponent<CanvasGroup>();
+        if (cg == null) cg = obj.AddComponent<CanvasGroup>();
+        cg.blocksRaycasts = false; // Biar asap nggak nutupin tombol
+        cg.interactable = false;
+        return cg;
     }
 
     private void OnEnable()
@@ -52,14 +105,15 @@ public class UIFailMenu : MonoBehaviour
 
     private IEnumerator SekuensAnimasiKalah()
     {
-        // 1. Setup Awal: Transparan dan ditarik jauh ke atas layar
+        // Setup Awal (Disembunyikan di atas layar)
         canvasGroup.alpha = 0f;
-        popupVisual.anchoredPosition = posisiAsli + new Vector2(0, 1000f);
+        popupVisual.anchoredPosition = posisiAsliPopup + new Vector2(0, 1000f);
         popupVisual.localScale = Vector3.one; 
-
+        
+        SembunyikanEfekTambahan();
         StartCoroutine(FadeInBackground());
 
-        // 2. Animasi Jatuh dulu sampai mentok dan berhenti
+        // 1. Papan Gagal Jatuh (Slam)
         float waktu = 0f;
         while (waktu < durasiJatuh)
         {
@@ -67,26 +121,123 @@ public class UIFailMenu : MonoBehaviour
             float persentase = waktu / durasiJatuh;
             
             popupVisual.anchoredPosition = Vector2.LerpUnclamped(
-                posisiAsli + new Vector2(0, 1000f), 
-                posisiAsli, 
+                posisiAsliPopup + new Vector2(0, 1000f), 
+                posisiAsliPopup, 
                 kurvaJatuh.Evaluate(persentase)
             );
-            
             yield return null; 
         }
-        
-        // Kunci di tengah supaya pas!
-        popupVisual.anchoredPosition = posisiAsli;
+        popupVisual.anchoredPosition = posisiAsliPopup;
 
-        // 3. TRIGGER DEBU DI SINI (Pas banting ke tengah)
-        if (efekDebu != null) 
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxKalah != null)
         {
-            efekDebu.LedakkanDebu();
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxKalah);
         }
 
-        // 4. Mulai loop getaran berkala SETELAH jatuh selesai
+        // 2. Mulai Animasi Loop (Getaran & Siklus Partikel)
         if (getarCoroutine != null) StopCoroutine(getarCoroutine);
         getarCoroutine = StartCoroutine(LoopGetaranBerkala());
+
+        if (loopPartikelCoroutine != null) StopCoroutine(loopPartikelCoroutine);
+        loopPartikelCoroutine = StartCoroutine(LoopAnimasiPartikel());
+    }
+
+    private void SembunyikanEfekTambahan()
+    {
+        for (int i = 0; i < daftarAsap.Length; i++)
+        {
+            if (daftarAsap[i] != null) daftarAsap[i].localScale = Vector3.zero;
+        }
+        for (int i = 0; i < daftarSerpihan.Length; i++)
+        {
+            if (daftarSerpihan[i] != null)
+            {
+                daftarSerpihan[i].anchoredPosition = posisiAsliPopup + new Vector2(0, 150f); 
+                daftarSerpihan[i].localScale = Vector3.zero;
+            }
+        }
+    }
+
+    // --- LOGIKA BARU: Loop Simulasi Partikel Jatuh & Memudar ---
+    private IEnumerator LoopAnimasiPartikel()
+    {
+        while (!isButtonClicked)
+        {
+            // FASE 1: LEDAKAN MUNCUL
+            float waktu = 0f;
+            float[] arahRotasi = new float[daftarSerpihan.Length];
+            for (int i = 0; i < arahRotasi.Length; i++) arahRotasi[i] = Random.Range(-400f, 400f);
+
+            // Pastikan tidak tembus pandang saat baru meledak
+            SetAlphaSemuaEfek(1f);
+
+            while (waktu < durasiLedakan && !isButtonClicked)
+            {
+                waktu += Time.unscaledDeltaTime;
+                float kurva = kurvaLedakan.Evaluate(waktu / durasiLedakan);
+
+                for (int i = 0; i < daftarAsap.Length; i++)
+                {
+                    if (daftarAsap[i] != null) daftarAsap[i].localScale = Vector3.LerpUnclamped(Vector3.zero, skalaAsliAsap[i], kurva);
+                }
+                for (int i = 0; i < daftarSerpihan.Length; i++)
+                {
+                    if (daftarSerpihan[i] != null)
+                    {
+                        Vector2 pusatLedakan = posisiAsliPopup + new Vector2(0, 150f); 
+                        daftarSerpihan[i].anchoredPosition = Vector2.LerpUnclamped(pusatLedakan, posisiAsliSerpihan[i], kurva);
+                        daftarSerpihan[i].localScale = Vector3.LerpUnclamped(Vector3.zero, skalaAsliSerpihan[i], kurva);
+                        daftarSerpihan[i].localRotation = Quaternion.Euler(0, 0, arahRotasi[i] * kurva);
+                    }
+                }
+                yield return null;
+            }
+
+            // FASE 2: GRAVITASI JATUH & MEMUDAR
+            waktu = 0f;
+            float durasiJatuhDanMemudar = 1.3f; // Makin kecil makin cepat ilangnya
+
+            while (waktu < durasiJatuhDanMemudar && !isButtonClicked)
+            {
+                waktu += Time.unscaledDeltaTime;
+                float progres = waktu / durasiJatuhDanMemudar;
+
+                // Asap sedikit menyebar membesar sambil pudar
+                for (int i = 0; i < daftarAsap.Length; i++)
+                {
+                    if (daftarAsap[i] != null)
+                    {
+                        daftarAsap[i].localScale = skalaAsliAsap[i] * (1f + (progres * 0.3f));
+                        if (cgAsap[i] != null) cgAsap[i].alpha = 1f - progres;
+                    }
+                }
+
+                // Serpihan ditarik ke bawah melengkung makin cepat (gravitasi)
+                for (int i = 0; i < daftarSerpihan.Length; i++)
+                {
+                    if (daftarSerpihan[i] != null)
+                    {
+                        float gravitasi = Mathf.Pow(progres, 2) * -350f; 
+                        daftarSerpihan[i].anchoredPosition = posisiAsliSerpihan[i] + new Vector2(0, gravitasi);
+                        daftarSerpihan[i].Rotate(0, 0, (arahRotasi[i] * 0.5f) * Time.unscaledDeltaTime);
+                        
+                        // Serpihan memudar sedikit lebih cepat dari asap
+                        if (cgSerpihan[i] != null) cgSerpihan[i].alpha = Mathf.Clamp01(1f - (progres * 1.5f));
+                    }
+                }
+                yield return null;
+            }
+
+            // FASE 3: JEDA SEJENAK SEBELUM MELEDAK LAGI
+            SembunyikanEfekTambahan();
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+    }
+
+    private void SetAlphaSemuaEfek(float targetAlpha)
+    {
+        if (cgAsap != null) foreach (CanvasGroup cg in cgAsap) if (cg != null) cg.alpha = targetAlpha;
+        if (cgSerpihan != null) foreach (CanvasGroup cg in cgSerpihan) if (cg != null) cg.alpha = targetAlpha;
     }
 
     private IEnumerator FadeInBackground()
@@ -110,16 +261,13 @@ public class UIFailMenu : MonoBehaviour
             while (waktu < durasiGetar)
             {
                 waktu += Time.unscaledDeltaTime;
-                
                 float sisaKekuatan = 1f - (waktu / durasiGetar); 
                 float geserX = Random.Range(-1f, 1f) * intensitasGetar * sisaKekuatan;
                 float geserY = Random.Range(-1f, 1f) * intensitasGetar * sisaKekuatan;
-
-                popupVisual.anchoredPosition = posisiAsli + new Vector2(geserX, geserY);
+                popupVisual.anchoredPosition = posisiAsliPopup + new Vector2(geserX, geserY);
                 yield return null;
             }
-
-            popupVisual.anchoredPosition = posisiAsli;
+            popupVisual.anchoredPosition = posisiAsliPopup;
             yield return new WaitForSecondsRealtime(jedaAntarGetar);
         }
     }
@@ -128,9 +276,7 @@ public class UIFailMenu : MonoBehaviour
     {
         if (isButtonClicked) return;
         isButtonClicked = true;
-        
-        if (getarCoroutine != null) StopCoroutine(getarCoroutine); 
-        
+        HentikanSemuaLoop();
         StartCoroutine(AnimasiGoyangDanEksekusi(tombolTryAgain, true));
     }
 
@@ -138,10 +284,14 @@ public class UIFailMenu : MonoBehaviour
     {
         if (isButtonClicked) return;
         isButtonClicked = true;
-        
-        if (getarCoroutine != null) StopCoroutine(getarCoroutine); 
-        
+        HentikanSemuaLoop();
         StartCoroutine(AnimasiGoyangDanEksekusi(tombolMainMenu, false));
+    }
+
+    private void HentikanSemuaLoop()
+    {
+        if (getarCoroutine != null) StopCoroutine(getarCoroutine); 
+        if (loopPartikelCoroutine != null) StopCoroutine(loopPartikelCoroutine);
     }
 
     private IEnumerator AnimasiGoyangDanEksekusi(RectTransform targetTombol, bool isUlangi)
@@ -163,13 +313,7 @@ public class UIFailMenu : MonoBehaviour
         }
 
         Time.timeScale = 1f; 
-        if (isUlangi)
-        {
-            TransisiScene.Instance.PindahScene(SceneManager.GetActiveScene().name);
-        }
-        else
-        {
-            TransisiScene.Instance.PindahScene(namaSceneHome);
-        }
+        if (isUlangi) TransisiScene.Instance.PindahScene(SceneManager.GetActiveScene().name);
+        else TransisiScene.Instance.PindahScene(namaSceneHome);
     }
 }

@@ -167,7 +167,9 @@ public class TouchVFXManager : MonoBehaviour
 
         while (waktu < durasi)
         {
-            waktu += Time.deltaTime;
+            // --- PERUBAHAN DI SINI: Gunakan unscaledDeltaTime ---
+            waktu += Time.unscaledDeltaTime; 
+            
             float t = waktu / durasi; 
             
             if (isCore)

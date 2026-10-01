@@ -358,10 +358,17 @@ public class HiddenObjectManager : MonoBehaviour
         
         isTimerRunning = false; 
 
-        if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
+        // --- PERBAIKAN DI SINI ---
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxPopupSecret != null)
         {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxPopupSecret);
+        }
+        else if (AudioManager.Instance != null && AudioManager.Instance.sfxDapatBarang != null)
+        {
+            // Fallback (cadangan) kalau slot sfxPopupSecret lupa diisi
             AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxDapatBarang);
         }
+        // -------------------------
         
         pendingSprite = img;
         pendingReward = reward;

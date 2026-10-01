@@ -17,6 +17,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip sfxDapatBarang;
     public AudioClip sfxPilihPulau; // BARU
     public AudioClip sfxMaskot;     // BARU
+    public AudioClip sfxPopupSecret; // BARU (Buat pop-up secret item)
 
     [Header("Daftar Suara (SFX) Koper & Puzzle")]
     public AudioClip sfxAmbilBarang; 
@@ -42,6 +43,10 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
+        // --- BARU: Ambil data volume terakhir ---
+        if (bgmSource != null) bgmSource.volume = PlayerPrefs.GetFloat("VolumeBGM", 1f);
+        if (sfxSource != null) sfxSource.volume = PlayerPrefs.GetFloat("VolumeSFX", 1f);
+
         // Otomatis putar BGM utama saat game pertama kali dibuka
         if (bgmPetaUtama != null)
         {

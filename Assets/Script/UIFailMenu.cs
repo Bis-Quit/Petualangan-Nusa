@@ -165,11 +165,11 @@ public class UIFailMenu : MonoBehaviour
         Time.timeScale = 1f; 
         if (isUlangi)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            TransisiScene.Instance.PindahScene(SceneManager.GetActiveScene().name);
         }
         else
         {
-            SceneManager.LoadScene(namaSceneHome);
+            TransisiScene.Instance.PindahScene(namaSceneHome);
         }
     }
 }

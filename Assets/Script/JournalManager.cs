@@ -206,6 +206,6 @@ public class JournalManager : MonoBehaviour
 
     public void TombolTutup()
     {
-        SceneManager.LoadScene(namaSceneKembali);
+        TransisiScene.Instance.PindahScene(namaSceneKembali);
     }
 }

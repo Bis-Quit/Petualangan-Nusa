@@ -232,7 +232,7 @@ public class UIWinMenu : MonoBehaviour
         if (isButtonClicked) return; 
         isButtonClicked = true;
         Time.timeScale = 1f; 
-        SceneManager.LoadScene(namaSceneRetry); 
+        TransisiScene.Instance.PindahScene(namaSceneRetry); 
     }
 
     public void LanjutLevel()
@@ -247,6 +247,6 @@ public class UIWinMenu : MonoBehaviour
         }
 
         Time.timeScale = 1f; 
-        SceneManager.LoadScene(namaSceneNextLevel);
+        TransisiScene.Instance.PindahScene(namaSceneNextLevel);
     }
 }

@@ -11,46 +11,40 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadSceneByName(string sceneName)
     {
-        SceneManager.LoadSceneAsync(sceneName);
+        TransisiScene.Instance.PindahScene(sceneName);
     }
     
     public void Onclick_mainMenu()
     {
-        SceneManager.LoadSceneAsync(mainMenuScene);
+        TransisiScene.Instance.PindahScene(mainMenuScene);
     }
 
     public void Onclick_map()
     {
-        SceneManager.LoadSceneAsync(mapScene);
+        TransisiScene.Instance.PindahScene(mapScene);
     }
 
     public void Onclick_gameplay()
     {
-        SceneManager.LoadSceneAsync(gameplayScene);
+        TransisiScene.Instance.PindahScene(gameplayScene);
     }
 
     public void Onclick_story()
     {
-        SceneManager.LoadSceneAsync(storyScene);
+        TransisiScene.Instance.PindahScene(storyScene);
     }
 
     public void Onclick_exit()
     {
         Application.Quit();
-
         #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
         #endif
     }
 
-    /// <summary>
-    /// Memuat scene gameplay dan menyuntikkan data level yang dipilih.
-    /// </summary>
-    /// <param name="selectedLevelData">Scriptable Object dari level yang dituju</param>
     public void LoadGameplayWithLevel(LevelData selectedLevelData)
     {
         HiddenObjectManager.ActiveLevelData = selectedLevelData;
-        
-        SceneManager.LoadSceneAsync(gameplayScene);
+        TransisiScene.Instance.PindahScene(gameplayScene);
     }
 }

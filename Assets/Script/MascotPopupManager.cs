@@ -186,12 +186,12 @@ public class MascotPopupManager : MonoBehaviour
         
         if (isWinState)
         {
-            SceneManager.LoadSceneAsync(koperScene);
+            TransisiScene.Instance.PindahScene(koperScene);
         }
         else if (pendingLevelData != null)
         {
             HiddenObjectManager.ActiveLevelData = pendingLevelData;
-            SceneManager.LoadSceneAsync(gameplayScene);
+            TransisiScene.Instance.PindahScene(gameplayScene);
         }
     }
 

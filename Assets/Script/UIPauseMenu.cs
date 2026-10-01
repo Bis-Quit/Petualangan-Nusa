@@ -38,8 +38,7 @@ public class UIPauseMenu : MonoBehaviour
     public void GoToHome()
     {
         Time.timeScale = 1f; 
-        
-        SceneManager.LoadScene(namaSceneHome);
+        TransisiScene.Instance.PindahScene(namaSceneHome);
     }
     
     public void SetMusicVolume(float volume)

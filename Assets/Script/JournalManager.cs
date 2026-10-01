@@ -12,13 +12,13 @@ public class DataHalamanJurnal
     public string julukanDaerah;   
     public Sprite gambarDaerah;    
 
-    [Header("Halaman Kanan (Benda 1)")]
-    public ItemDataSO dataBenda1;
-    public string asalBenda1;      
-
-    [Header("Halaman Kanan (Benda 2)")]
-    public ItemDataSO dataBenda2;
-    public string asalBenda2;      
+    [Header("Halaman Kanan (Benda)")]
+    public ItemDataSO dataBenda;
+    public string asalBenda;
+    
+    [TextArea(3, 5)]
+    [Tooltip("Isi dengan sejarah atau penjelasan barang")]
+    public string deskripsiBenda; // BARU: Menampung teks panjang
 }
 
 public class JournalManager : MonoBehaviour
@@ -35,13 +35,10 @@ public class JournalManager : MonoBehaviour
 
     [Header("Referensi UI: Halaman Kanan")]
     public GameObject wadahHalamanKanan;
-    public Image portraitBenda1;
-    public TextMeshProUGUI teksNamaBenda1;
-    public TextMeshProUGUI teksAsalBenda1;
-    
-    public Image portraitBenda2;
-    public TextMeshProUGUI teksNamaBenda2;
-    public TextMeshProUGUI teksAsalBenda2;
+    public Image portraitBenda;
+    public TextMeshProUGUI teksNamaBenda;
+    public TextMeshProUGUI teksAsalBenda;
+    public TextMeshProUGUI teksDeskripsiBenda; // BARU: Slot UI Deskripsi
 
     [Header("Aset Global")]
     public Sprite spriteTandaTanya; 
@@ -70,11 +67,9 @@ public class JournalManager : MonoBehaviour
     {
         if (sedangAnimasi) return;
 
-        // 1. Deteksi Swipe di HP (Touch)
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-
             if (touch.phase == TouchPhase.Began)
             {
                 posisiAwalSentuh = touch.position;
@@ -86,7 +81,6 @@ public class JournalManager : MonoBehaviour
                 CekArahSwipe();
             }
         }
-        // 2. Deteksi Mouse Drag
         else if (Input.GetMouseButtonDown(0))
         {
             posisiAwalSentuh = Input.mousePosition;
@@ -116,57 +110,53 @@ public class JournalManager : MonoBehaviour
         if (daftarHalaman.Length == 0) return;
         DataHalamanJurnal data = daftarHalaman[index];
 
-        // --- SET HALAMAN KIRI ---
         if (portraitDaerah != null) portraitDaerah.sprite = data.gambarDaerah;
         if (teksHeadline != null) teksHeadline.text = data.namaDaerah;
         if (teksSubHeadline != null) teksSubHeadline.text = data.julukanDaerah;
 
-        // --- SET HALAMAN KANAN ---
-        SetupSlotBenda(data.dataBenda1, data.asalBenda1, portraitBenda1, teksNamaBenda1, teksAsalBenda1);
-        SetupSlotBenda(data.dataBenda2, data.asalBenda2, portraitBenda2, teksNamaBenda2, teksAsalBenda2);
+        SetupSlotBenda(data, portraitBenda, teksNamaBenda, teksAsalBenda, teksDeskripsiBenda);
     }
 
-    private void SetupSlotBenda(ItemDataSO dataBenda, string teksAsal, Image foto, TextMeshProUGUI teksNama, TextMeshProUGUI asal)
+    private void SetupSlotBenda(DataHalamanJurnal data, Image foto, TextMeshProUGUI teksNama, TextMeshProUGUI asal, TextMeshProUGUI deskripsi)
     {
         if (foto == null) return;
 
-        // Tangkap objek bingkai utama (Parent dari foto)
         GameObject bingkaiPolaroid = foto.transform.parent.gameObject;
 
-        // KALAU BARANGNYA KOSONG (Cuma ada 1 barang di daerah ini)
-        if (dataBenda == null) 
+        if (data.dataBenda == null) 
         {
             bingkaiPolaroid.SetActive(false); 
             if (teksNama != null) teksNama.gameObject.SetActive(false); 
             if (asal != null) asal.gameObject.SetActive(false); 
+            if (deskripsi != null) deskripsi.gameObject.SetActive(false);
             return;
         }
 
-        // KALAU BARANGNYA ADA
         bingkaiPolaroid.SetActive(true); 
         if (teksNama != null) teksNama.gameObject.SetActive(true); 
         if (asal != null) asal.gameObject.SetActive(true); 
+        if (deskripsi != null) deskripsi.gameObject.SetActive(true);
 
-        // Cek save data
-        bool sudahKetemu = PlayerPrefs.GetInt("Koleksi_" + dataBenda.namaItem, 0) == 1;
+        bool sudahKetemu = PlayerPrefs.GetInt("Koleksi_" + data.dataBenda.namaItem, 0) == 1;
 
         if (sudahKetemu)
         {
-            foto.sprite = dataBenda.gambarItem;
-            foto.transform.localScale = Vector3.one; // Kembalikan ke ukuran 100%
-            if (teksNama != null) teksNama.text = dataBenda.namaItem;
-            if (asal != null) asal.text = teksAsal;
+            foto.sprite = data.dataBenda.gambarItem;
+            foto.transform.localScale = Vector3.one; 
+            if (teksNama != null) teksNama.text = data.dataBenda.namaItem;
+            if (asal != null) asal.text = data.asalBenda;
+            if (deskripsi != null) deskripsi.text = data.deskripsiBenda;
         }
         else
         {
             foto.sprite = spriteTandaTanya;
-            foto.transform.localScale = new Vector3(0.5f, 0.5f, 1f); // Kecilkan jadi 50%
+            foto.transform.localScale = new Vector3(0.5f, 0.5f, 1f); 
             if (teksNama != null) teksNama.text = "???";
             if (asal != null) asal.text = "???";
+            if (deskripsi != null) deskripsi.text = "Deskripsi belum tersedia. Temukan pusaka ini terlebih dahulu untuk membaca informasinya.";
         }
     }
 
-    // --- FUNGSI INTERAKSI TOMBOL ---
     public void KlikHalamanBerikutnya()
     {
         if (sedangAnimasi || halamanAktif >= daftarHalaman.Length - 1) return;

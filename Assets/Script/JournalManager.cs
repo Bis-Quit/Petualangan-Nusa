@@ -17,8 +17,7 @@ public class DataHalamanJurnal
     public string asalBenda;
     
     [TextArea(3, 5)]
-    [Tooltip("Isi dengan sejarah atau penjelasan barang")]
-    public string deskripsiBenda; // BARU: Menampung teks panjang
+    public string deskripsiBenda;
 }
 
 public class JournalManager : MonoBehaviour
@@ -38,7 +37,7 @@ public class JournalManager : MonoBehaviour
     public Image portraitBenda;
     public TextMeshProUGUI teksNamaBenda;
     public TextMeshProUGUI teksAsalBenda;
-    public TextMeshProUGUI teksDeskripsiBenda; // BARU: Slot UI Deskripsi
+    public TextMeshProUGUI teksDeskripsiBenda; 
 
     [Header("Aset Global")]
     public Sprite spriteTandaTanya; 
@@ -138,24 +137,112 @@ public class JournalManager : MonoBehaviour
         if (deskripsi != null) deskripsi.gameObject.SetActive(true);
 
         bool sudahKetemu = PlayerPrefs.GetInt("Koleksi_" + data.dataBenda.namaItem, 0) == 1;
+        bool isBaru = PlayerPrefs.GetInt("ItemBaru_" + data.dataBenda.namaItem, 0) == 1; 
 
         if (sudahKetemu)
         {
             foto.sprite = data.dataBenda.gambarItem;
-            foto.transform.localScale = Vector3.one; 
             if (teksNama != null) teksNama.text = data.dataBenda.namaItem;
             if (asal != null) asal.text = data.asalBenda;
             if (deskripsi != null) deskripsi.text = data.deskripsiBenda;
+
+            if (isBaru)
+            {
+                PlayerPrefs.SetInt("ItemBaru_" + data.dataBenda.namaItem, 0);
+                PlayerPrefs.SetInt("AdaPusakaBaru", 0); 
+                PlayerPrefs.Save();
+                
+                // Memicu animasi rentetan (Cascade)
+                Transform tFoto = foto.transform;
+                Transform tNama = teksNama != null ? teksNama.transform : null;
+                Transform tAsal = asal != null ? asal.transform : null;
+                Transform tDesc = deskripsi != null ? deskripsi.transform : null;
+                
+                StartCoroutine(AnimasiPopUpWah(tFoto, tNama, tAsal, tDesc));
+            }
+            else
+            {
+                // Reset normal untuk barang lama
+                foto.transform.localScale = Vector3.one; 
+                if (teksNama != null) teksNama.transform.localScale = Vector3.one;
+                if (asal != null) asal.transform.localScale = Vector3.one;
+                if (deskripsi != null) deskripsi.transform.localScale = Vector3.one;
+            }
         }
         else
         {
+            // Reset normal untuk barang yang belum ditemukan
             foto.sprite = spriteTandaTanya;
             foto.transform.localScale = new Vector3(0.5f, 0.5f, 1f); 
-            if (teksNama != null) teksNama.text = "???";
-            if (asal != null) asal.text = "???";
-            if (deskripsi != null) deskripsi.text = "Deskripsi belum tersedia. Temukan pusaka ini terlebih dahulu untuk membaca informasinya.";
+            
+            if (teksNama != null) { teksNama.text = "???"; teksNama.transform.localScale = Vector3.one; }
+            if (asal != null) { asal.text = "???"; asal.transform.localScale = Vector3.one; }
+            if (deskripsi != null) { deskripsi.text = "???"; deskripsi.transform.localScale = Vector3.one; }
         }
     }
+
+    // --- ANIMASI CASCADE & JELLY BOUNCE ---
+    private IEnumerator AnimasiPopUpWah(Transform foto, Transform nama, Transform asal, Transform deskripsi)
+    {
+        // 1. Sembunyikan semuanya di awal
+        if (foto != null) foto.localScale = Vector3.zero;
+        if (nama != null) nama.localScale = Vector3.zero;
+        if (asal != null) asal.localScale = Vector3.zero;
+        if (deskripsi != null) deskripsi.localScale = Vector3.zero;
+        
+        yield return new WaitForSeconds(0.2f); // Tunggu kertas halaman beres membalik
+
+        if (AudioManager.Instance != null && AudioManager.Instance.sfxPopupSecret != null)
+        {
+            AudioManager.Instance.MainkanSFX(AudioManager.Instance.sfxPopupSecret);
+        }
+
+        // 2. Munculkan satu-satu secara berurutan dengan jeda singkat
+        if (foto != null) StartCoroutine(JellyPop(foto));
+        yield return new WaitForSeconds(0.15f);
+        
+        if (nama != null) StartCoroutine(JellyPop(nama));
+        yield return new WaitForSeconds(0.1f);
+        
+        if (asal != null) StartCoroutine(JellyPop(asal));
+        yield return new WaitForSeconds(0.1f);
+        
+        if (deskripsi != null) StartCoroutine(JellyPop(deskripsi));
+    }
+
+    private IEnumerator JellyPop(Transform target)
+    {
+        // Fase 1: Melesat membesar ke 130%
+        float waktu = 0f;
+        while (waktu < 0.2f)
+        {
+            waktu += Time.unscaledDeltaTime;
+            target.localScale = Vector3.LerpUnclamped(Vector3.zero, Vector3.one * 1.3f, waktu / 0.2f);
+            yield return null;
+        }
+
+        // Fase 2: Menciut ke 90%
+        waktu = 0f;
+        while (waktu < 0.1f)
+        {
+            waktu += Time.unscaledDeltaTime;
+            target.localScale = Vector3.LerpUnclamped(Vector3.one * 1.3f, Vector3.one * 0.9f, waktu / 0.1f);
+            yield return null;
+        }
+
+        // Fase 3: Mengendur perlahan ke 100% (Normal)
+        waktu = 0f;
+        while (waktu < 0.1f)
+        {
+            waktu += Time.unscaledDeltaTime;
+            target.localScale = Vector3.LerpUnclamped(Vector3.one * 0.9f, Vector3.one, waktu / 0.1f);
+            yield return null;
+        }
+        
+        target.localScale = Vector3.one;
+    }
+
+    // --------------------------------------
 
     public void KlikHalamanBerikutnya()
     {

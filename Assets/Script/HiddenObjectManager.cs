@@ -455,6 +455,7 @@ public class HiddenObjectManager : MonoBehaviour
             {
                 InventoryPemain.pusakaTerkumpul.Add(data);
                 PlayerPrefs.SetInt("Koleksi_" + data.namaItem, 1);
+                PlayerPrefs.SetInt("ItemBaru_" + data.namaItem, 1);
             }
 
             // Kalau ada secret yang diambil di level ini, nyalakan notif Jurnal

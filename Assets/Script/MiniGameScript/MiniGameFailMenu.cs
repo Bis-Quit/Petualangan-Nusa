@@ -7,7 +7,7 @@ using System.Collections;
 public class MiniGameFailMenu : MonoBehaviour
 {
     [Header("Pengaturan Navigasi")]
-    public string namaSceneHome = "mainMenu";
+    public string namaSceneHome = "scnMap";
 
     [Header("Referensi Teks Skor & Koin")]
     public TextMeshProUGUI teksYourScore;

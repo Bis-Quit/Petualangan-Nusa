@@ -14,10 +14,11 @@ public class GameManagerMiniGame : MonoBehaviour
     public UICoinDisplay coinDisplayGlobal;
     
     [Header("Pengaturan Navigasi")]
-    public string namaSceneKembali = "mainMenu";
+    public string namaSceneKembali = "scnMap";
 
     private int skorTotal = 0;
     private int koinSesiIni = 0;
+    private bool gameSudahMulai = false;
 
     void Awake()
     {
@@ -33,7 +34,18 @@ public class GameManagerMiniGame : MonoBehaviour
 
         mascot.gameObject.SetActive(true);
         mascot.enabled = true;
-        spawner.MulaiSpawner();
+        
+        // HAPUS spawner.MulaiSpawner() dari sini agar barang tidak langsung jatuh
+    }
+
+    // Fungsi baru ini dipanggil saat player pertama kali menyentuh layar
+    public void MulaiPermainan()
+    {
+        if (!gameSudahMulai)
+        {
+            gameSudahMulai = true;
+            spawner.MulaiSpawner();
+        }
     }
 
     public void TambahSkor(int poin)
@@ -50,12 +62,9 @@ public class GameManagerMiniGame : MonoBehaviour
 
     public void GameSelesai()
     {
-        // Cukup matikan interaksinya, wujud maskot tetap dibiarkan aktif di layar
         mascot.enabled = false; 
-        
         spawner.HentikanSpawner();
         Time.timeScale = 0f; 
-        
         panelGameOver.TampilkanPanel(skorTotal, koinSesiIni); 
     }
 }

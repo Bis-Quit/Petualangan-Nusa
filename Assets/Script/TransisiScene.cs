@@ -16,6 +16,10 @@ public class TransisiScene : MonoBehaviour
     [Tooltip("Masukkan CanvasGroup dari Background Overlay ke sini")]
     public CanvasGroup overlayKabut;
 
+    [Header("UI Info Rotasi Layar")]
+    [Tooltip("Masukkan GameObject induk UI_InfoRotasi ke sini")]
+    public GameObject uiInfoRotasi;
+
     [Header("Pengaturan Kecepatan & Smoothness")]
     public float durasiPerGelombang = 1.3f; 
     public float jedaAntarGelombang = 0.35f; 
@@ -34,6 +38,9 @@ public class TransisiScene : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             canvasGroup = GetComponent<CanvasGroup>();
+
+            // Pastikan UI mati dari awal
+            if (uiInfoRotasi != null) uiInfoRotasi.SetActive(false);
 
             InisialisasiDataAwan();
             StartCoroutine(BukaLayarAwan());
@@ -80,14 +87,34 @@ public class TransisiScene : MonoBehaviour
         sedangPindah = true;
         canvasGroup.blocksRaycasts = true;
 
+        // Cek apakah transisi ini butuh info rotasi
+        string sceneSekarang = SceneManager.GetActiveScene().name;
+        bool butuhInfoRotasi = (sceneSekarang == "scnMap" && namaScene == "scnMiniGame") || 
+                               (sceneSekarang == "scnMiniGame" && namaScene == "scnMap");
+
         // 1. TUTUP LAYAR (Awan merapat + Kabut menebal)
         yield return StartCoroutine(AnimasiGelombang(true));
+
+        // Munculkan UI Putar Layar jika kondisinya terpenuhi
+        if (butuhInfoRotasi && uiInfoRotasi != null)
+        {
+            uiInfoRotasi.SetActive(true);
+            
+            // Jeda tambahan sedikit biar pemain sadar harus putar HP (bebas disesuaikan)
+            yield return new WaitForSecondsRealtime(1.2f); 
+        }
 
         // 2. LOADING SCENE DI BACKGROUND
         yield return SceneManager.LoadSceneAsync(namaScene);
 
         yield return null; 
         yield return new WaitForSecondsRealtime(0.3f); 
+
+        // Matikan kembali UI info rotasi sebelum awan terbuka
+        if (uiInfoRotasi != null)
+        {
+            uiInfoRotasi.SetActive(false);
+        }
 
         // 3. BUKA LAYAR (Awan menyingkir + Kabut memudar)
         yield return StartCoroutine(AnimasiGelombang(false));
@@ -100,11 +127,11 @@ public class TransisiScene : MonoBehaviour
     {
         sedangPindah = true;
         canvasGroup.blocksRaycasts = true;
+        if (uiInfoRotasi != null) uiInfoRotasi.SetActive(false);
 
         foreach (RectTransform awan in gelombangPertama) if (awan != null) awan.anchoredPosition = posisiTutup[awan];
         foreach (RectTransform awan in gelombangKedua) if (awan != null) awan.anchoredPosition = posisiTutup[awan];
         
-        // Kunci kabut di kondisi pekat saat game baru mulai
         if (overlayKabut != null) overlayKabut.alpha = 1f;
 
         yield return null;
@@ -125,14 +152,12 @@ public class TransisiScene : MonoBehaviour
         {
             waktuBerjalan += Time.unscaledDeltaTime;
 
-            // Gerakkan Awan
             float progres1 = Mathf.Clamp01(waktuBerjalan / durasiPerGelombang);
             GerakkanGrup(gelombangPertama, kurvaTransisi.Evaluate(progres1), isTutupLayar);
 
             float progres2 = Mathf.Clamp01((waktuBerjalan - jedaAntarGelombang) / durasiPerGelombang);
             GerakkanGrup(gelombangKedua, kurvaTransisi.Evaluate(progres2), isTutupLayar);
 
-            // Fade in/out Overlay Kabut menggunakan kurva yang sama
             if (overlayKabut != null)
             {
                 float progresKabut = Mathf.Clamp01(waktuBerjalan / totalWaktu);
